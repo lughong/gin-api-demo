@@ -1,0 +1,59 @@
+# 服务配置
+server:
+  env: dev
+  runMode: debug
+  port: :8080
+  readTimeout: 60
+  writeTimeout: 60
+  jwtSecret: sdjf934785974FJMSMBN043534utjldsdfLKJ}P|Q@#!glkdjg
+
+# 数据库配置
+database:
+  driver: mysql
+  addr: 127.0.0.1:3306
+  user: apiuser
+  password: 123456
+  dbname: gin_api_demo
+  tablePrefix: tb_
+  debug: true
+  maxOpenConns: 1000
+  maxIdleConns: 0
+
+# redis缓存配置
+redis:
+  host: 127.0.0.1
+  port: :6379
+  db: 1
+  protocol: tcp
+  maxIdle: 3
+  maxActive: 3
+  idleTimeout: 240
+
+# log配置
+log:
+  level: DEBUG
+  path: data/logs/
+  fileName: system.log
+
+# cors 跨域资源共享
+cors:
+  allowAllOrigins: true
+  allowMethods:
+    - GET
+    - HEAD
+    - POST
+    - PUT
+    - DELETE
+    - CONNECT
+    - OPTIONS
+    - TRACE
+    - PATCH
+  allowHeaders:
+    - Origin
+    - Accept
+    - Content-Type
+    - Authorization
+  exposeHeaders:
+    - Content-Length
+  allowCredentials: true
+  maxAge: 12 # 单位: 小时
