@@ -1,10 +1,10 @@
 package router
 
 import (
-	v1 "github.com/lughong/gin-api-demo/handler/v1"
 	"net/http"
 	"time"
 
+	v1 "github.com/lughong/gin-api-demo/handler/v1"
 	"github.com/lughong/gin-api-demo/router/middleware"
 
 	"github.com/gin-contrib/cors"
