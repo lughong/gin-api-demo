@@ -1,10 +1,10 @@
 package router
 
 import (
-	v1 "github.com/lughong/gin-api-demo/handler/v1"
 	"net/http"
 	"time"
 
+	v1 "github.com/lughong/gin-api-demo/handler/v1"
 	"github.com/lughong/gin-api-demo/router/middleware"
 
 	"github.com/gin-contrib/cors"
@@ -12,10 +12,14 @@ import (
 	"github.com/spf13/viper"
 )
 
+// Init 初始化路由器
 func Init(mw []gin.HandlerFunc) *gin.Engine {
+	// 设置运行模式
 	gin.SetMode(viper.GetString("server.runMode"))
 
 	g := gin.New()
+
+	// 设置panic恢复中间件
 	g.Use(gin.Recovery())
 	g.Use(middleware.Secure)
 	g.Use(middleware.NoCache)
@@ -33,7 +37,7 @@ func Init(mw []gin.HandlerFunc) *gin.Engine {
 
 	V1 := g.Group("v1")
 	{
-		V1.GET("user", v1.Get)
+		V1.GET("user", v1.GetUser)
 	}
 
 	g.NoRoute(func(c *gin.Context) {

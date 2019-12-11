@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"regexp"
 
-	"github.com/lughong/gin-api-demo/entity"
+	. "github.com/lughong/gin-api-demo/handler"
 	"github.com/lughong/gin-api-demo/pkg/errno"
 	"github.com/lughong/gin-api-demo/pkg/token"
 
@@ -24,7 +24,7 @@ func AuthMiddleware() gin.HandlerFunc {
 
 		// parse the JSON web token.
 		if _, err := token.ParseRequest(c); err != nil {
-			entity.SendResponse(c, errno.ErrTokenInvalid, nil)
+			SendResponse(c, errno.ErrTokenInvalid, nil)
 			c.Abort()
 			return
 		}

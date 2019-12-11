@@ -9,12 +9,14 @@ import (
 
 var Pool *redis.Pool
 
+// Init 初始化redis连接池
 func Init() {
 	Pool = &redis.Pool{
 		MaxIdle:     viper.GetInt("redis.maxIdle"),
 		MaxActive:   viper.GetInt("redis.maxActive"),
 		IdleTimeout: time.Duration(viper.GetInt64("redis.idleTimeout")),
 		Dial: func() (redis.Conn, error) {
+			// 链接redis
 			c, err := redis.Dial(
 				viper.GetString("redis.protocol"),
 				viper.GetString("redis.host")+viper.GetString("redis.port"),
@@ -23,6 +25,7 @@ func Init() {
 				return nil, err
 			}
 
+			// 进行校验，如果设置了密码
 			password := viper.GetString("redis.password")
 			if password != "" {
 				if _, err := c.Do("AUTH", password); err != nil {
@@ -31,6 +34,7 @@ func Init() {
 				}
 			}
 
+			// 选择操作库
 			if _, err := c.Do("SELECT", viper.GetInt64("redis.db")); err != nil {
 				_ = c.Close()
 				return nil, err
@@ -48,6 +52,7 @@ func Init() {
 	}
 }
 
+// Set 保存一个值并设定过期时间
 func Set(key, value string, seconds int) error {
 	conn := Pool.Get()
 	_ = conn.Close()
@@ -65,6 +70,7 @@ func Set(key, value string, seconds int) error {
 	return nil
 }
 
+// Get 获取
 func Get(key string) (string, error) {
 	conn := Pool.Get()
 	_ = conn.Close()
@@ -80,6 +86,7 @@ func Get(key string) (string, error) {
 	return reply, nil
 }
 
+// Del 删除
 func Del(key string) (bool, error) {
 	conn := Pool.Get()
 	_ = conn.Close()
@@ -87,6 +94,7 @@ func Del(key string) (bool, error) {
 	return redis.Bool(conn.Do("DEL", key))
 }
 
+// Exists 判断是否存在
 func Exists(key string) bool {
 	conn := Pool.Get()
 	_ = conn.Close()

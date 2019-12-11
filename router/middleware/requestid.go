@@ -5,6 +5,8 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
+// RequestId 这是一个中间件，主要用来设置header头的X-Request-Id
+// 唯一标识一次HTTP请求
 func RequestId() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// Check for incoming header, use it if exists

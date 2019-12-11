@@ -5,16 +5,18 @@ import (
 	"sync"
 )
 
+// 定义Worker接口，只能实现了该接口的方法，都可以使用协程池执行。
 type Worker interface {
 	Task()
 }
 
+// 定义一个协程池结构体
 type Pool struct {
 	work chan Worker
 	wg   sync.WaitGroup
 }
 
-// New create the pool and limit to max goroutine number.
+// New 创建一个协程池并设置协程最大运行数量
 func New(maxGoroutines int) *Pool {
 	p := Pool{
 		work: make(chan Worker),
@@ -34,12 +36,12 @@ func New(maxGoroutines int) *Pool {
 	return &p
 }
 
-// Run post new worker to the pool.
+// Run 发送一个Worker到协程池
 func (p *Pool) Run(w Worker) {
 	p.work <- w
 }
 
-// Shutdown wait to stop for all goroutine.
+// Shutdown 等待和停止所有的协程.
 func (p *Pool) Shutdown() {
 	close(p.work)
 	p.wg.Wait()
