@@ -15,12 +15,14 @@ import (
 	"github.com/spf13/viper"
 )
 
+// 定义一个函数类型，用来New的时候修改Config的值
 type ModOption func(c *Config)
 
 type Config struct {
 	Name string
 }
 
+// New 返回初始化后的Config结构体指针
 func New(modOptions ...ModOption) *Config {
 	c := Config{
 		Name: "",
@@ -47,11 +49,13 @@ func (c Config) Load() error {
 	return nil
 }
 
-// initConfig parse and read the config file content.
+// initConfig 解析和读取配置文件内容，这里使用的是yaml格式的配置文件
 func (c Config) initConfig() error {
 	viper.SetConfigFile(c.Name)
 	viper.SetConfigType("yaml")
 
+	// 设置环境变量前缀，可以通过环境变量来覆盖配置文件的值。
+	// 优先级 explicit call to Set>flag>env>config>key/value store>default
 	viper.AutomaticEnv()
 	viper.SetEnvPrefix("MALL")
 	replacer := strings.NewReplacer(".", "_")
@@ -64,8 +68,7 @@ func (c Config) initConfig() error {
 	return nil
 }
 
-// initLog create log path if the log path is not exists.
-// set the log auto back up
+// initLog 初始化日志
 func (c Config) initLog() error {
 	basePath := viper.GetString("log.path")
 	if basePath != "" {
@@ -80,6 +83,7 @@ func (c Config) initLog() error {
 		return err
 	}
 
+	// 设置日志输出
 	logrus.SetOutput(src)
 
 	level := viper.Get("log.logger_level")
@@ -98,6 +102,7 @@ func (c Config) initLog() error {
 		logrus.SetLevel(logrus.InfoLevel)
 	}
 
+	// 设置日志的备份操作
 	writer, err := rotates.New(
 		logFile+".%Y%m%d%H",
 		rotates.WithMaxAge(60*24*time.Hour),
@@ -132,8 +137,7 @@ func (c Config) initLog() error {
 	return nil
 }
 
-// watchConfig monitor the config file.
-// hot reload if modify the config file content.
+// watchConfig 监控配置文件，如果配置文件发生了改变则进行热加载。
 func (c Config) watchConfig() {
 	viper.WatchConfig()
 	viper.OnConfigChange(func(e fsnotify.Event) {

@@ -2,7 +2,7 @@
 server:
   env: dev
   runMode: debug
-  port: :8080
+  port: :8090
   readTimeout: 60
   writeTimeout: 60
   jwtSecret: sdjf934785974FJMSMBN043534utjldsdfLKJ}P|Q@#!glkdjg

@@ -2,8 +2,7 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
-	"os"
+	"log"
 
 	"github.com/lughong/gin-api-demo/config"
 	"github.com/lughong/gin-api-demo/model"
@@ -13,7 +12,6 @@ import (
 	"github.com/lughong/gin-api-demo/router/middleware"
 
 	"github.com/gin-gonic/gin"
-	"github.com/sirupsen/logrus"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 )
@@ -26,47 +24,50 @@ var (
 func main() {
 	pflag.Parse()
 
+	// 获取版本信息并输出其内容
 	if *version {
 		v := version2.Get()
 		marshalled, err := json.MarshalIndent(&v, "", " ")
 		if err != nil {
-			fmt.Printf("%v\n", err)
-			os.Exit(1)
+			log.Fatalf("%v\r\n", err)
 		}
 
-		fmt.Println(string(marshalled))
+		log.Println(string(marshalled))
 		return
 	}
 
+	// 设置配置文件路径
 	c := config.New(func(c *config.Config) {
 		c.Name = *cfg
 	})
-	// load config
+	// 加载配置文件信息
 	if err := c.Load(); err != nil {
-		fmt.Printf("Config load. %s", err)
-		os.Exit(1)
+		log.Fatalf("Config load. %s", err)
 	}
 
-	// init database
+	// 初始化数据库
 	db, err := model.Init()
 	if err != nil {
-		fmt.Printf("Model init. %s", err)
-		os.Exit(1)
+		log.Printf("Model init. %s", err)
 	}
-	defer db.Close()
+	if db != nil {
+		defer db.Close()
+	}
 
-	// init redis
+	// 初始化redis
 	redis.Init()
 
-	// init router
+	// 设置路由中间件
 	mw := []gin.HandlerFunc{
 		middleware.RequestId(),
 		middleware.LoggerToFile(),
 	}
+	// 初始化路由器
 	g := router.Init(mw)
 
-	logrus.Info("Start...")
+	// 开启服务
+	log.Println("Api server start...")
 	if err := g.Run(viper.GetString("server.port")); err != nil {
-		logrus.Fatalf("Gin Run. %s", err)
+		log.Fatalf("Gin run. %s", err)
 	}
 }

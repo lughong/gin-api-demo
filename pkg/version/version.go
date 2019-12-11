@@ -5,6 +5,7 @@ import (
 	"runtime"
 )
 
+// 定义版本信息结构体
 type Info struct {
 	GitTag       string `json:"gitTag"`
 	GitCommit    string `json:"gitCommit"`
@@ -15,6 +16,7 @@ type Info struct {
 	Platform     string `json:"platform"`
 }
 
+// Get 获取版本信息
 func Get() Info {
 	return Info{
 		GitTag:       gitTag,
