@@ -1,2 +1,2 @@
 # gin-api-demo
-An API framework developed using gin
+An API framework developed using gin.
