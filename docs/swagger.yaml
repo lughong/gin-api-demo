@@ -1,0 +1,61 @@
+basePath: /v1
+definitions:
+  handler.CreateRequest:
+    properties:
+      password:
+        type: string
+      username:
+        type: string
+    required:
+    - password
+    - username
+    type: object
+  handler.Response:
+    properties:
+      code:
+        type: integer
+      data:
+        type: object
+      msg:
+        type: string
+    type: object
+host: localhost:8090
+info:
+  contact:
+    email: 1586668924@qq.com
+    name: lughong
+    url: http://www.swagger.io/support
+  description: gin api demo
+  license: {}
+  title: gin-api-demo Example API
+  version: "1.0"
+paths:
+  /v1/user:
+    get:
+      description: Get user info
+      parameters:
+      - description: Get user info for the username
+        in: body
+        name: username
+        required: true
+        schema:
+          $ref: '#/definitions/handler.CreateRequest'
+          type: object
+      - description: Get user info for the password
+        in: body
+        name: password
+        required: true
+        schema:
+          $ref: '#/definitions/handler.CreateRequest'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"code":0,"msg":"OK","data":{"id":1,"username":"zhangsan","password":"","age":18}}'
+          schema:
+            $ref: '#/definitions/handler.Response'
+      summary: Get user info of the database
+      tags:
+      - user
+swagger: "2.0"

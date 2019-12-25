@@ -1,0 +1,2 @@
+time="2019-12-25 10:50:42" level=info msg="3.582177ms | 127.0.0.1 | GET | /v1/user | {\"username\":\"zhangsan\",\"password\":\"\"} | {code: 0, message: OK} "
+time="2019-12-25 10:50:43" level=info msg="1.284495ms | 127.0.0.1 | GET | /v1/user | {\"username\":\"zhangsan\",\"password\":\"\"} | {code: 0, message: OK} "

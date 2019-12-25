@@ -1,0 +1,101 @@
+package middleware
+
+import (
+	"bytes"
+	"encoding/json"
+	"io/ioutil"
+	"regexp"
+	"time"
+
+	. "github.com/lughong/gin-api-demo/app/handler"
+	"github.com/lughong/gin-api-demo/app/pkg/errno"
+
+	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
+)
+
+// bodyLogWriter结构体
+type bodyLogWriter struct {
+	gin.ResponseWriter
+	body *bytes.Buffer
+}
+
+// Write 这个方法覆盖了*bytes.Buffer里面的Write方法。
+// 目的是为了截取响应信息。
+func (w bodyLogWriter) Write(b []byte) (int, error) {
+	w.body.Write(b)
+	return w.ResponseWriter.Write(b)
+}
+
+// LoggerToFile 把日志记录在 File。这是一个中间件函数，可以记录每一次客户端请求的信息。
+func LoggerToFile() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		reqURI := c.Request.RequestURI
+		reg := regexp.MustCompile(`(/v1/login|/favicon.ico)`)
+		if reg.MatchString(reqURI) {
+			return
+		}
+
+		// 读取请求body内容
+		var bodyBytes []byte
+		if c.Request.Body != nil {
+			bodyBytes, _ = ioutil.ReadAll(c.Request.Body)
+		}
+
+		// 因为请求body只能读取一次，所以读取后需要重写入到request里面。
+		c.Request.Body = ioutil.NopCloser(bytes.NewReader(bodyBytes))
+		blw := &bodyLogWriter{
+			body:           bytes.NewBufferString(""),
+			ResponseWriter: c.Writer,
+		}
+		c.Writer = blw
+
+		startTime := time.Now().UTC()
+
+		c.Next()
+
+		endTime := time.Now().UTC()
+		latencyTime := endTime.Sub(startTime)
+
+		var statusCode, message = -1, ""
+
+		// 读取响应信息
+		var response Response
+		if err := json.Unmarshal(blw.body.Bytes(), &response); err != nil {
+			statusCode = errno.InternalServerError.Code
+			message = errno.InternalServerError.Message
+		} else {
+			statusCode = response.Code
+			message = response.Msg
+		}
+
+		// the basic information
+		clientIP := c.ClientIP()
+		reqMethod := c.Request.Method
+
+		logrus.Infof(
+			"%s | %s | %s | %s | %s | {code: %d, message: %s} ",
+			latencyTime,
+			clientIP,
+			reqMethod,
+			reqURI,
+			bodyBytes,
+			statusCode,
+			message,
+		)
+	}
+}
+
+// LoggerToMongo 把日志记录在 MongoDB
+func LoggerToMongo() gin.HandlerFunc {
+	return func(c *gin.Context) {
+
+	}
+}
+
+// LoggerToMQ 把日志记录在 MQ
+func LoggerToMQ() gin.HandlerFunc {
+	return func(c *gin.Context) {
+
+	}
+}
