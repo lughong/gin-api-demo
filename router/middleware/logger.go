@@ -7,8 +7,7 @@ import (
 	"regexp"
 	"time"
 
-	. "github.com/lughong/gin-api-demo/app/handler"
-	"github.com/lughong/gin-api-demo/app/pkg/errno"
+	"github.com/lughong/gin-api-demo/pkg/errno"
 
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
@@ -31,7 +30,7 @@ func (w bodyLogWriter) Write(b []byte) (int, error) {
 func LoggerToFile() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		reqURI := c.Request.RequestURI
-		reg := regexp.MustCompile(`(/v1/login|/favicon.ico)`)
+		reg := regexp.MustCompile(`(/login|/favicon.ico)`)
 		if reg.MatchString(reqURI) {
 			return
 		}

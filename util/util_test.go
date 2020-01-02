@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/lughong/gin-api-demo/app/util"
+	"github.com/lughong/gin-api-demo/util"
 )
 
 var (

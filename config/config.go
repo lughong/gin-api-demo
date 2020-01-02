@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/lughong/gin-api-demo/app/util"
+	"github.com/lughong/gin-api-demo/util"
 
 	"github.com/fsnotify/fsnotify"
 	rotates "github.com/lestrrat-go/file-rotatelogs"
@@ -24,7 +24,7 @@ type Config struct {
 }
 
 // New 返回初始化后的Config结构体指针
-func New(modOptions ...ModOption) *Config {
+func NewConfig(modOptions ...ModOption) *Config {
 	c := Config{
 		Name: "",
 	}

@@ -6,56 +6,39 @@
 
 目录结构
 ~~~
-├── app                            # 应用目录
-│   ├── conf                       # 配置文件统一存放目录(运行前需要调整database、redis等参数配置)
-│   │   └── config.yaml                 
-│   ├── config                     # 专门用来处理配置和配置文件的Go package
-│   │   └── config.go                 
-│   ├── handler                    # 类似MVC架构中的C，用来读取输入，并将处理流程转发给实际的处理函数，最后返回结果
-│   │   ├── v1                     # 版本目录，可以设置不同版本的业务逻辑handler
-│   │   │   └── user.go                 
-│   │   └── handler.go
-│   ├── model                      # 数据库相关的操作统一放在这里，包括数据库初始化和对表的增删改查
-│   │   ├── init.go                # 初始化和连接数据库
-│   │   └── user.go                
-│   ├── pkg                        # 引用的包
-│   │   ├── auth                   # 认证包
-│   │   │   └── auth.go
-│   │   ├── constvar               # 常量统一存放位置
-│   │   │   └── constvar.go
-│   │   ├── errno                  # 错误码存放位置
-│   │   │   ├── code.go
-│   │   │   └── errno.go
-│   │   ├── redis                  # redis包
-│   │   │   └── redis.go
-│   │   ├── token
-│   │   │   └── token.go
-│   │   └── version                # 版本包
-│   │       ├── base.go
-│   │       └── version.go
-│   ├── router                     # 路由相关处理
-│   │   ├── middleware             # API服务器用的是Gin Web框架，Gin中间件存放位置
-│   │   │   ├── auth.go 
-│   │   │   ├── header.go
-│   │   │   ├── logger.go
-│   │   │   └── requestid.go
-│   │   └── router.go
-│   ├── service                    # 实际业务处理函数存放位置
-│   │   └── user.go
-│   └── util                       # 工具类函数存放目录
-│       ├── util.go
-│       └── util_test.go
-├── cmd                            
-│   └── gin-api-demo                 
-│       └── main.go                 # Go程序唯一入口
-├── data                            
-│   └── logs                        # 运行时记录的日志目录
-│       └── system.log              
-├── gin_api_demo.sql                # 在部署新环境时，可以登录MySQL客户端，执行source gin_api_demo.sql创建数据库和表
-├── Makefile                        # Makefile文件
-├── README.md                       
-├── go.mod                          # 记录依赖包及其版本号
-└── go.sum                          
+├── api                        # 接口目录
+│   ├── user                   # 实际业务处理函数存放位置
+│   │   ├── handler            # 类似MVC架构中的C，用来读取输入，并将处理流程转发给实际的处理函数（CLI、web、REST、gRPC)
+│   │   ├── repository         # 仓库实现层（NoSQL、RDBMS、Micro-Services）
+│   │   ├── logic              # 逻辑实现层
+│   │   ├── repository.go      # 仓库层接口
+│   │   └── logic.go           # 逻辑层接口
+│   └── response.go            
+├── cmd                        
+│   └── gin-api-demo           # Go程序唯一入口      
+├── conf                       # 配置文件统一存放目录(运行前需要调整database、redis等参数配置)
+├── config                     # 专门用来处理配置和配置文件的Go package
+├── data                       
+│   └── logs                   # 运行时记录的日志目录
+├── docs                       # api文档存放目录
+├── model                      # 数据库相关的操作统一放在这里，包括数据库初始化和对表的增删改查
+├── pkg                        # 引用的包
+│   ├── auth                   # 认证包
+│   ├── constvar               # 常量统一存放位置
+│   ├── errno                  # 错误码存放位置
+│   ├── redis                  # redis包
+│   ├── token                  # token包
+│   └── version                # 版本包
+├── registry                   # 依赖注入容器
+├── router                     # 路由相关处理
+│   ├── middleware             # API服务器用的是Gin Web框架，Gin中间件存放位置
+│   └── router.go
+├── util                       # 工具类函数存放目录
+├── gin_api_demo.sql           # 在部署新环境时，可以登录MySQL客户端，执行source gin_api_demo.sql创建数据库和表
+├── Makefile                   # Makefile文件
+├── README.md                  
+├── go.mod                     # 记录依赖包及其版本号
+└── go.sum                     
 ~~~
 
 克隆项目
@@ -86,7 +69,8 @@ $ export GOPROXY=https://goproxy.cn,direct
 
 测试服务是否正常
 ~~~
-$ curl -XGET -H "Content-Type: application/json; charset=utf8;" -d'{"username":"zhangsan","password":""}' http://localhost:8090/v1/user
+$ curl -XGET -H "Content-Type: application/json; charset=utf8;" -d'{"username":"zhangsan","password":""}' http://localhost:8090/user
+输出结果：{"code":0,"msg":"OK","data":{"age":18,"username":"zhangsan"}}
 ~~~
 
 构建脚本运行项目

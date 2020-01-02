@@ -2,24 +2,35 @@ package main
 
 import (
 	"encoding/json"
+	"github.com/lughong/gin-api-demo/router"
 	"log"
 
-	"github.com/lughong/gin-api-demo/app/config"
-	"github.com/lughong/gin-api-demo/app/model"
-	"github.com/lughong/gin-api-demo/app/pkg/redis"
-	version2 "github.com/lughong/gin-api-demo/app/pkg/version"
-	"github.com/lughong/gin-api-demo/app/router"
-	"github.com/lughong/gin-api-demo/app/router/middleware"
+	"github.com/lughong/gin-api-demo/config"
+	version2 "github.com/lughong/gin-api-demo/pkg/version"
+	"github.com/lughong/gin-api-demo/registry"
+	"github.com/lughong/gin-api-demo/router/middleware"
 
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/pflag"
-	"github.com/spf13/viper"
 )
 
 var (
-	cfg     = pflag.StringP("config", "c", "app/conf/config.yaml", "config file path.")
+	cfg     = pflag.StringP("config", "c", "conf/config.yaml", "config file path.")
 	version = pflag.BoolP("version", "v", false, "show version info.")
 )
+
+func init() {
+	pflag.Parse()
+
+	// 设置配置文件路径
+	c := config.NewConfig(func(c *config.Config) {
+		c.Name = *cfg
+	})
+	// 加载配置文件信息
+	if err := c.Load(); err != nil {
+		log.Fatalf("Config load. %s", err)
+	}
+}
 
 // @title gin-api-demo Example API
 // @version 1.0
@@ -32,8 +43,6 @@ var (
 // @host localhost:8090
 // @BasePath /v1
 func main() {
-	pflag.Parse()
-
 	// 获取版本信息并输出其内容
 	if *version {
 		v := version2.Get()
@@ -46,38 +55,17 @@ func main() {
 		return
 	}
 
-	// 设置配置文件路径
-	c := config.New(func(c *config.Config) {
-		c.Name = *cfg
-	})
-	// 加载配置文件信息
-	if err := c.Load(); err != nil {
-		log.Fatalf("Config load. %s", err)
-	}
-
-	// 初始化数据库
-	db, err := model.Init()
+	// 配置注册表
+	ctn, err := registry.NewContainer()
 	if err != nil {
-		log.Printf("Model init. %s", err)
+		log.Fatalf("registry NewContainer. %s", err)
 	}
-	if db != nil {
-		defer db.Close()
-	}
+	defer ctn.Delete()
 
-	// 初始化redis
-	redis.Init()
-
-	// 设置路由中间件
-	mw := []gin.HandlerFunc{
-		middleware.RequestId(),
-		middleware.LoggerToFile(),
-	}
-	// 初始化路由器
-	g := router.Init(mw)
-
-	// 开启服务
-	log.Println("Api server start...")
-	if err := g.Run(viper.GetString("server.port")); err != nil {
+	// 配置路由
+	mw := []gin.HandlerFunc{middleware.RequestId(), middleware.LoggerToFile()}
+	r := router.NewRouter(mw)
+	if err := r.Run(ctn); err != nil {
 		log.Fatalf("Gin run. %s", err)
 	}
 }

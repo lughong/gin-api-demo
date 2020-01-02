@@ -7,6 +7,9 @@ server:
   writeTimeout: 60
   jwtSecret: sdjf934785974FJMSMBN043534utjldsdfLKJ}P|Q@#!glkdjg
 
+context:
+  timeout: 5 # seconds
+
 # 数据库配置
 database:
   driver: mysql

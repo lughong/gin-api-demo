@@ -1,15 +1,30 @@
-package v1
+package http
 
 import (
-	. "github.com/lughong/gin-api-demo/app/handler"
-	"github.com/lughong/gin-api-demo/app/pkg/auth"
-	"github.com/lughong/gin-api-demo/app/pkg/errno"
-	"github.com/lughong/gin-api-demo/app/service"
+	"context"
+
+	. "github.com/lughong/gin-api-demo/api"
+	"github.com/lughong/gin-api-demo/api/user"
+	. "github.com/lughong/gin-api-demo/api/user/handler"
+	"github.com/lughong/gin-api-demo/pkg/auth"
+	"github.com/lughong/gin-api-demo/pkg/errno"
 
 	"github.com/gin-gonic/gin"
 )
 
-// GetUser 获取用户详情
+type UserHandler struct {
+	userLogic user.Logic
+}
+
+func NewUserHandler(g *gin.Engine, userLogic user.Logic) {
+	h := &UserHandler{
+		userLogic: userLogic,
+	}
+
+	g.GET("/user", h.GetByUsername)
+}
+
+// GetByUsername 获取用户详情
 // @Summary Get user info of the database
 // @Description Get user info
 // @Tags user
@@ -19,7 +34,7 @@ import (
 // @Param password body handler.CreateRequest true "Get user info for the password"
 // @Success 200 {object} handler.Response "{"code":0,"msg":"OK","data":{"id":1,"username":"zhangsan","password":"","age":18}}"
 // @Router /v1/user [get]
-func GetUser(c *gin.Context) {
+func (u *UserHandler) GetByUsername(c *gin.Context) {
 	var r CreateRequest
 
 	// 绑定数据到结构体
@@ -35,17 +50,26 @@ func GetUser(c *gin.Context) {
 	}
 
 	// 获取用户详情
-	user, err := service.GetUserDetail(r.Username, r.Password)
+	ctx := c.Request.Context()
+	if ctx == nil {
+		ctx = context.Background()
+	}
+
+	anUser, err := u.userLogic.GetByUsername(ctx, r.Username)
 	if err != nil {
 		SendResponse(c, err, nil)
 		return
 	}
 
 	// 校验密码
-	if err := auth.Compare(user.Password, r.Password); err != nil {
+	if err := auth.Compare(anUser.GetPassword(), r.Password); err != nil {
 		//SendResponse(c, errno.ErrPasswordIncorrect, nil)
 		//return
 	}
 
-	SendResponse(c, nil, user)
+	data := map[string]interface{}{
+		"username": anUser.GetUsername(),
+		"age":      anUser.GetAge(),
+	}
+	SendResponse(c, nil, data)
 }

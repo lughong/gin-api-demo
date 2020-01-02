@@ -2,11 +2,11 @@ package middleware
 
 import (
 	"fmt"
+	"net/http"
 	"regexp"
 
-	. "github.com/lughong/gin-api-demo/app/handler"
-	"github.com/lughong/gin-api-demo/app/pkg/errno"
-	"github.com/lughong/gin-api-demo/app/pkg/token"
+	"github.com/lughong/gin-api-demo/pkg/errno"
+	"github.com/lughong/gin-api-demo/pkg/token"
 
 	"github.com/gin-gonic/gin"
 )
@@ -23,9 +23,14 @@ func AuthMiddleware() gin.HandlerFunc {
 			return
 		}
 
+		response := Response{
+			Code: errno.ErrTokenInvalid.Code,
+			Msg:  errno.ErrTokenInvalid.Message,
+			Data: nil,
+		}
 		// parse the JSON web token.
 		if _, err := token.ParseRequest(c); err != nil {
-			SendResponse(c, errno.ErrTokenInvalid, nil)
+			c.JSON(http.StatusOK, response)
 			c.Abort()
 			return
 		}
