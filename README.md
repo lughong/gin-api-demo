@@ -1,6 +1,6 @@
 项目介绍
 ~~~
-使用gin开发的一个api框架。
+Go API(REST + JSON)
 项目地址：https://github.com/lughong/gin-api-demo
 ~~~
 
@@ -18,8 +18,6 @@
 │   └── gin-api-demo           # Go程序唯一入口      
 ├── conf                       # 配置文件统一存放目录(运行前需要调整database、redis等参数配置)
 ├── config                     # 专门用来处理配置和配置文件的Go package
-├── data                       
-│   └── logs                   # 运行时记录的日志目录
 ├── docs                       # api文档存放目录
 ├── model                      # 数据库相关的操作统一放在这里，包括数据库初始化和对表的增删改查
 ├── pkg                        # 引用的包

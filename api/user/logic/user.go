@@ -36,7 +36,7 @@ func (u *userLogic) GetByUsername(c context.Context, username string) (*model.Us
 
 	// 如果系统错误，记录日志
 	if err != nil {
-		err = errno.New(errno.ErrGetUserDetail, err).Addf("username=?", username)
+		err = errno.New(errno.ErrGetUserDetail, err).Addf("username=%s", username)
 		logrus.Errorf("Get an error. %s", err)
 		return nil, errno.InternalServerError
 	}

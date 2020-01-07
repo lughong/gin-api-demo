@@ -36,7 +36,7 @@ func (m *mysqlUserRepository) GetByUsername(ctx context.Context, username string
 
 	var (
 		id       int
-		uname 	 string
+		uname    string
 		password string
 		age      int
 	)

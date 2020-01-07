@@ -72,8 +72,8 @@ func (c Config) initConfig() error {
 // initLog 初始化日志
 func (c Config) initLog() error {
 	basePath := viper.GetString("log.path")
-	if basePath != "" {
-		_, _ = util.CreateDir(basePath)
+	if _, err := util.CreateDir(basePath); err != nil {
+		return err
 	}
 
 	fileName := viper.GetString("log.fileName")

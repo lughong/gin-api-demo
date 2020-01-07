@@ -35,7 +35,7 @@ redis:
 # log配置
 log:
   level: DEBUG
-  path: data/logs/
+  path: /var/log/go/
   fileName: system.log
 
 # cors 跨域资源共享
