@@ -7,6 +7,7 @@ import (
 	"regexp"
 	"time"
 
+	"github.com/lughong/gin-api-demo/model"
 	"github.com/lughong/gin-api-demo/pkg/errno"
 
 	"github.com/gin-gonic/gin"
@@ -27,7 +28,7 @@ func (w bodyLogWriter) Write(b []byte) (int, error) {
 }
 
 // LoggerToFile 把日志记录在 File。这是一个中间件函数，可以记录每一次客户端请求的信息。
-func LoggerToFile() gin.HandlerFunc {
+func (m *GoMiddleware) LoggerToFile() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		reqURI := c.Request.RequestURI
 		reg := regexp.MustCompile(`(/login|/favicon.ico)`)
@@ -59,7 +60,7 @@ func LoggerToFile() gin.HandlerFunc {
 		var statusCode, message = -1, ""
 
 		// 读取响应信息
-		var response Response
+		var response model.Response
 		if err := json.Unmarshal(blw.body.Bytes(), &response); err != nil {
 			statusCode = errno.InternalServerError.Code
 			message = errno.InternalServerError.Message
@@ -86,14 +87,14 @@ func LoggerToFile() gin.HandlerFunc {
 }
 
 // LoggerToMongo 把日志记录在 MongoDB
-func LoggerToMongo() gin.HandlerFunc {
+func (m *GoMiddleware) LoggerToMongo() gin.HandlerFunc {
 	return func(c *gin.Context) {
 
 	}
 }
 
 // LoggerToMQ 把日志记录在 MQ
-func LoggerToMQ() gin.HandlerFunc {
+func (m *GoMiddleware) LoggerToMQ() gin.HandlerFunc {
 	return func(c *gin.Context) {
 
 	}

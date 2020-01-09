@@ -3,9 +3,9 @@ package http
 import (
 	"context"
 
-	. "github.com/lughong/gin-api-demo/api"
 	"github.com/lughong/gin-api-demo/api/user"
 	. "github.com/lughong/gin-api-demo/api/user/handler"
+	"github.com/lughong/gin-api-demo/model"
 	"github.com/lughong/gin-api-demo/pkg/auth"
 	"github.com/lughong/gin-api-demo/pkg/errno"
 
@@ -13,12 +13,12 @@ import (
 )
 
 type UserHandler struct {
-	userLogic user.Logic
+	UserLogic user.Logic
 }
 
 func NewUserHandler(g *gin.Engine, userLogic user.Logic) {
 	h := &UserHandler{
-		userLogic: userLogic,
+		UserLogic: userLogic,
 	}
 
 	g.GET("/user", h.GetByUsername)
@@ -39,7 +39,7 @@ func (u *UserHandler) GetByUsername(c *gin.Context) {
 
 	// 绑定数据到结构体
 	if err := c.BindJSON(&r); err != nil {
-		SendResponse(c, errno.ErrBind, nil)
+		model.SendResponse(c, errno.ErrBind, nil)
 		return
 	}
 
@@ -55,9 +55,9 @@ func (u *UserHandler) GetByUsername(c *gin.Context) {
 		ctx = context.Background()
 	}
 
-	anUser, err := u.userLogic.GetByUsername(ctx, r.Username)
+	anUser, err := u.UserLogic.GetByUsername(ctx, r.Username)
 	if err != nil {
-		SendResponse(c, err, nil)
+		model.SendResponse(c, err, nil)
 		return
 	}
 
@@ -71,5 +71,5 @@ func (u *UserHandler) GetByUsername(c *gin.Context) {
 		"username": anUser.GetUsername(),
 		"age":      anUser.GetAge(),
 	}
-	SendResponse(c, nil, data)
+	model.SendResponse(c, nil, data)
 }

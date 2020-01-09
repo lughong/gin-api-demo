@@ -1,4 +1,4 @@
-package api
+package model
 
 import (
 	"net/http"
@@ -15,6 +15,7 @@ type Response struct {
 	Data interface{} `json:"data"`
 }
 
+// SendResponse 响应json结果
 func SendResponse(c *gin.Context, err error, data interface{}) {
 	code, msg := errno.DecodeErr(err)
 

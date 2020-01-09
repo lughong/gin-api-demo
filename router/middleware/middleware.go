@@ -1,8 +1,9 @@
 package middleware
 
-// Response 响应请求的结构体
-type Response struct {
-	Code int         `json:"code"`
-	Msg  string      `json:"msg"`
-	Data interface{} `json:"data"`
+// GoMiddleware 表示中间件的数据结构
+type GoMiddleware struct{}
+
+// NewGoMiddleware
+func NewGoMiddleware() *GoMiddleware {
+	return &GoMiddleware{}
 }

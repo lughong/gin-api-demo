@@ -19,6 +19,10 @@ clean:
 gotool:
 	gofmt -w .
 	go vet ... 2>&1 | grep -v vendor;true
+gotest:
+	go test -v ./...
+run:
+	./gin-api-demo &
 help:
 	@echo "make - compile the source code"
 	@echo "make clean - remove binary file and vim swp files"

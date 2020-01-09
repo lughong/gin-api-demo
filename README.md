@@ -7,15 +7,13 @@ Go API(REST + JSON)
 目录结构
 ~~~
 ├── api                        # 接口目录
-│   ├── user                   # 实际业务处理函数存放位置
-│   │   ├── handler            # 类似MVC架构中的C，用来读取输入，并将处理流程转发给实际的处理函数（CLI、web、REST、gRPC)
-│   │   ├── repository         # 仓库实现层（NoSQL、RDBMS、Micro-Services）
-│   │   ├── logic              # 逻辑实现层
-│   │   ├── repository.go      # 仓库层接口
-│   │   └── logic.go           # 逻辑层接口
-│   └── response.go            
-├── cmd                        
-│   └── gin-api-demo           # Go程序唯一入口      
+│   └── user                   # 实际业务处理函数存放位置
+│       ├── handler            # 类似MVC架构中的C，用来读取输入，并将处理流程转发给实际的处理函数（CLI、web、REST、gRPC)
+│       ├── repository         # 仓库实现层（NoSQL、RDBMS、Micro-Services）
+│       ├── logic              # 逻辑实现层
+│       ├── repository.go      # 仓库层接口
+│       └── logic.go           # 逻辑层接口
+├── cmd                        # Go程序唯一入口
 ├── conf                       # 配置文件统一存放目录(运行前需要调整database、redis等参数配置)
 ├── config                     # 专门用来处理配置和配置文件的Go package
 ├── docs                       # api文档存放目录
@@ -30,11 +28,11 @@ Go API(REST + JSON)
 ├── registry                   # 依赖注入容器
 ├── router                     # 路由相关处理
 │   ├── middleware             # API服务器用的是Gin Web框架，Gin中间件存放位置
-│   └── router.go
+│   └── router.go              # 路由处理
 ├── util                       # 工具类函数存放目录
 ├── gin_api_demo.sql           # 在部署新环境时，可以登录MySQL客户端，执行source gin_api_demo.sql创建数据库和表
 ├── Makefile                   # Makefile文件
-├── README.md                  
+├── README.md                  # README.md文件
 ├── go.mod                     # 记录依赖包及其版本号
 └── go.sum                     
 ~~~

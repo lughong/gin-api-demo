@@ -2,16 +2,17 @@ package main
 
 import (
 	"encoding/json"
-	"github.com/lughong/gin-api-demo/router"
 	"log"
 
 	"github.com/lughong/gin-api-demo/config"
 	version2 "github.com/lughong/gin-api-demo/pkg/version"
 	"github.com/lughong/gin-api-demo/registry"
+	"github.com/lughong/gin-api-demo/router"
 	"github.com/lughong/gin-api-demo/router/middleware"
 
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/pflag"
+	"github.com/spf13/viper"
 )
 
 var (
@@ -56,14 +57,26 @@ func main() {
 	}
 
 	// 配置注册表
-	ctn, err := registry.NewContainer()
+	cfg := registry.Config{
+		DBConfig:      viper.GetStringMapString("database"),
+		RedisConfig:   viper.GetStringMapString("redis"),
+		ContextConfig: viper.GetStringMapString("context"),
+	}
+	ctn, err := registry.NewContainer(cfg)
 	if err != nil {
 		log.Fatalf("registry NewContainer. %s", err)
 	}
 	defer ctn.Delete()
 
 	// 配置路由
-	mw := []gin.HandlerFunc{middleware.RequestId(), middleware.LoggerToFile()}
+	m := middleware.NewGoMiddleware()
+	mw := []gin.HandlerFunc{
+		m.CORS(),
+		m.NoCache(),
+		m.Secure(),
+		m.RequestId(),
+		m.LoggerToFile(),
+	}
 	r := router.NewRouter(mw)
 	if err := r.Run(ctn); err != nil {
 		log.Fatalf("Gin run. %s", err)

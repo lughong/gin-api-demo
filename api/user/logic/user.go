@@ -12,16 +12,38 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+// userLogic
 type userLogic struct {
 	userRepo       user.Repository
 	contextTimeout time.Duration
 }
 
+// NewUserLogic
 func NewUserLogic(repo user.Repository, timeout time.Duration) user.Logic {
 	return &userLogic{
 		userRepo:       repo,
 		contextTimeout: timeout,
 	}
+}
+
+// GetByUserID 根据用户名获取用户详情
+func (u *userLogic) GetByUserID(c context.Context, id int) (*model.User, error) {
+	ctx, cancel := context.WithTimeout(c, u.contextTimeout)
+	defer cancel()
+
+	anUser, err := u.userRepo.GetByUserID(ctx, id)
+	if err == sql.ErrNoRows {
+		return nil, errno.ErrUserNotFound
+	}
+
+	// 如果系统错误，记录日志
+	if err != nil {
+		err = errno.New(errno.ErrGetUserDetail, err).Addf("id=%d", id)
+		logrus.Errorf("Get an error. %s", err)
+		return nil, errno.InternalServerError
+	}
+
+	return anUser, nil
 }
 
 // GetByUsername 根据用户名获取用户详情

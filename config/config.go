@@ -36,7 +36,7 @@ func NewConfig(modOptions ...ModOption) *Config {
 	return &c
 }
 
-func (c Config) Load() error {
+func (c *Config) Load() error {
 	if err := c.initConfig(); err != nil {
 		return err
 	}
@@ -51,7 +51,7 @@ func (c Config) Load() error {
 }
 
 // initConfig 解析和读取配置文件内容，这里使用的是yaml格式的配置文件
-func (c Config) initConfig() error {
+func (c *Config) initConfig() error {
 	viper.SetConfigFile(c.Name)
 	viper.SetConfigType("yaml")
 
@@ -70,7 +70,7 @@ func (c Config) initConfig() error {
 }
 
 // initLog 初始化日志
-func (c Config) initLog() error {
+func (c *Config) initLog() error {
 	basePath := viper.GetString("log.path")
 	if _, err := util.CreateDir(basePath); err != nil {
 		return err
@@ -139,7 +139,7 @@ func (c Config) initLog() error {
 }
 
 // watchConfig 监控配置文件，如果配置文件发生了改变则进行热加载。
-func (c Config) watchConfig() {
+func (c *Config) watchConfig() {
 	viper.WatchConfig()
 	viper.OnConfigChange(func(e fsnotify.Event) {
 		logrus.Infof("Config file changed: %s", e.Name)

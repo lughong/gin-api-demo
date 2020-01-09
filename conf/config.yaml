@@ -30,7 +30,7 @@ redis:
   protocol: tcp
   maxIdle: 3
   maxActive: 3
-  idleTimeout: 240
+  idleTimeout: 60
 
 # log配置
 log:
@@ -57,6 +57,11 @@ cors:
     - Content-Type
     - Authorization
   exposeHeaders:
-    - Content-Length
-  allowCredentials: true
-  maxAge: 12 # 单位: 小时
+    - Cache-Control
+    - Content-Language
+    - Content-Type
+    - Expires
+    - Last-Modified
+    - Pragma
+  allowCredentials: false
+  maxAge: 2 # 单位: 小时

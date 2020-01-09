@@ -10,9 +10,13 @@ import (
 
 const (
 	// SQL语句常量
-	selectUserSQL       = "SELECT id, username, password, age FROM user"
-	selectByUsernameSQL = " WHERE username=?"
-	selectUserDetail    = selectUserSQL + selectByUsernameSQL
+	selectUserSQL = "SELECT id, username, password, age FROM user"
+
+	selectByUsernameSQL        = " WHERE username=?"
+	selectUserDetailByUsername = selectUserSQL + selectByUsernameSQL
+
+	selectByUserIDSQL        = " WHERE id=?"
+	selectUserDetailByUserID = selectUserSQL + selectByUserIDSQL
 )
 
 // mysqlUserRepository
@@ -27,24 +31,33 @@ func NewMysqlUserRepository(db *sql.DB) user.Repository {
 	}
 }
 
+// GetByUserID 获取一条user数据
+func (m *mysqlUserRepository) GetByUserID(ctx context.Context, id int) (*model.User, error) {
+	return m.getUser(ctx, selectUserDetailByUserID, id)
+}
+
 // GetByUsername 获取一条user数据
 func (m *mysqlUserRepository) GetByUsername(ctx context.Context, username string) (*model.User, error) {
-	stmt, err := m.DB.PrepareContext(ctx, selectUserDetail)
+	return m.getUser(ctx, selectUserDetailByUsername, username)
+}
+
+func (m *mysqlUserRepository) getUser(ctx context.Context, sql string, args ...interface{}) (*model.User, error) {
+	stmt, err := m.DB.PrepareContext(ctx, sql)
 	if err != nil {
 		return nil, err
 	}
 
 	var (
 		id       int
-		uname    string
+		username string
 		password string
 		age      int
 	)
-	if err := stmt.QueryRow(username).Scan(&id, &uname, &password, &age); err != nil {
+	if err := stmt.QueryRow(args...).Scan(&id, &username, &password, &age); err != nil {
 		return nil, err
 	}
 
 	// 把查找结果解析到User结构体
-	anUser := model.NewUser(id, uname, password, age)
+	anUser := model.NewUser(id, username, password, age)
 	return anUser, nil
 }
