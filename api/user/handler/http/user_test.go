@@ -68,4 +68,5 @@ func TestGetByUsername(t *testing.T) {
 	err = json.Unmarshal(body, &actual)
 	assert.NoError(t, err)
 	assert.Equal(t, exp, actual)
+	mockLogic.AssertExpectations(t)
 }

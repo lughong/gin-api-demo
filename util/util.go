@@ -1,6 +1,8 @@
 package util
 
 import (
+	"crypto/md5"
+	"encoding/hex"
 	"os"
 
 	"github.com/gin-gonic/gin"
@@ -18,6 +20,17 @@ func GetReqID(c *gin.Context) string {
 	}
 
 	return ""
+}
+
+// EncryptMD5 加密纯文本，返回加密后的字符串
+func EncryptMD5(source string) (string, error) {
+	md := md5.New()
+
+	if _, err := md.Write([]byte(source)); err != nil {
+		return "", err
+	}
+
+	return hex.EncodeToString(md.Sum(nil)), nil
 }
 
 // PathExists 判断文件夹或文件是否存在

@@ -1,76 +1,57 @@
 package util_test
 
 import (
-	"fmt"
+	"net/http/httptest"
 	"testing"
 
 	"github.com/lughong/gin-api-demo/util"
+
+	"github.com/bxcodec/faker"
+	"github.com/gin-gonic/gin"
+	"github.com/stretchr/testify/assert"
 )
 
-var (
-	path = "testdata"
-	file = "test.txt"
-)
-
-func TestPathExists(t *testing.T) {
-	exists, err := util.PathExists(path)
-	if err != nil {
-		t.Fatal(err)
+func TestGetReqID(t *testing.T) {
+	var idTests = []struct{
+		in string
+		expected string
+	}{
+		{"1", "1"},
+		{"2", "2"},
+		{"3", "3"},
+		{"4", "4"},
+		{"5", "5"},
+		{"6", "6"},
 	}
 
-	if !exists {
-		t.Logf("%s was not exists.", path)
-	} else {
-		t.Logf("%s was exists.", path)
-	}
-}
-
-func TestCreateDir(t *testing.T) {
-	ok, err := util.CreateDir(path)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	if !ok {
-		t.Logf("Create %s was failed.", path)
-	} else {
-		t.Logf("Create %s success.", path)
+	resp := httptest.NewRecorder()
+	c, _ := gin.CreateTestContext(resp)
+	for _, tt := range idTests {
+		c.Set("X-Request-Id", tt.in)
+		assert.Equal(t, tt.expected, util.GetReqID(c))
 	}
 }
 
-func TestCreateFile(t *testing.T) {
-	fileName := fmt.Sprintf("%s/%s", path, file)
-	ok, err := util.CreateFile(fileName)
-	if err != nil {
-		t.Fatal(err)
-	}
+func TestEncryptMD5(t *testing.T) {
+	var expected string
+	err := faker.FakeData(&expected)
+	assert.NoError(t, err)
 
-	if !ok {
-		t.Logf("Create %s was failed.", fileName)
-	} else {
-		t.Logf("Create %s success.", fileName)
-	}
+	actual, err := util.EncryptMD5(expected)
+
+	assert.NoError(t, err)
+	assert.NotNil(t, actual)
 }
 
-func BenchmarkCreateFile(b *testing.B) {
+func BenchmarkEncryptMD5(b *testing.B) {
+	var expected string
+	err := faker.FakeData(&expected)
+	assert.NoError(b, err)
+
+	_, _ = util.EncryptMD5(expected)
+
+	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		fileName := fmt.Sprintf("%s/%s%d", path, file, i)
-		_, _ = util.CreateFile(fileName)
-	}
-}
-
-func BenchmarkCreateFileConsuming(b *testing.B) {
-	b.StopTimer()
-
-	fileName := fmt.Sprintf("%s/%s", path, file)
-	_, err := util.CreateFile(fileName)
-	if err != nil {
-		b.Fatal(err)
-	}
-
-	b.StartTimer()
-	for i := 0; i < b.N; i++ {
-		fileName := fmt.Sprintf("%s/%s%d", path, file, i)
-		_, _ = util.CreateFile(fileName)
+		_, _ = util.EncryptMD5(expected)
 	}
 }

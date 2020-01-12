@@ -22,6 +22,11 @@ func New(errno *Errno, err error) *Err {
 	return &Err{Code: errno.Code, Message: errno.Message, Err: err}
 }
 
+// Error 实现error接口，输出错误信息。
+func (err *Err) Error() string {
+	return fmt.Sprintf("Err - code: %d, message: %s, error: %s", err.Code, err.Message, err.Err)
+}
+
 // Add 新增错误信息
 func (err *Err) Add(message string) error {
 	err.Message += " " + message
@@ -32,11 +37,6 @@ func (err *Err) Add(message string) error {
 func (err *Err) Addf(format string, args ...interface{}) error {
 	err.Message += " " + fmt.Sprintf(format, args...)
 	return err
-}
-
-// Error 实现error接口，输出错误信息。
-func (err *Err) Error() string {
-	return fmt.Sprintf("Err - code: %d, message: %s, error: %s", err.Code, err.Message, err.Err)
 }
 
 // IsErrUserNotFound 判断是否是用户不存在错误
