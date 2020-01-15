@@ -5,13 +5,15 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/lughong/gin-api-demo/router/middleware"
-
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
+
+	"github.com/lughong/gin-api-demo/router/middleware"
 )
 
 func TestMiddleware(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+
 	m := middleware.NewGoMiddleware()
 
 	t.Run("CORS", func(t *testing.T) {
@@ -23,7 +25,6 @@ func TestMiddleware(t *testing.T) {
 		h(c)
 
 		result := resp.Result()
-		t.Log(result)
 		assert.Equal(t, http.StatusOK, result.StatusCode)
 		assert.Equal(t, "*", result.Header.Get("Access-Control-Allow-Origin"))
 	})
@@ -37,7 +38,6 @@ func TestMiddleware(t *testing.T) {
 		h(c)
 
 		result := resp.Result()
-		t.Log(result)
 		assert.Equal(t, http.StatusOK, result.StatusCode)
 		assert.Equal(t, "*", result.Header.Get("Access-Control-Allow-Origin"))
 	})
@@ -51,7 +51,6 @@ func TestMiddleware(t *testing.T) {
 		h(c)
 
 		result := resp.Result()
-		t.Log(result)
 		assert.Equal(t, http.StatusOK, result.StatusCode)
 		assert.Equal(t, "no-cache, no-store, max-age=0, must-revalidate, value", result.Header.Get("Cache-Control"))
 	})
@@ -65,7 +64,6 @@ func TestMiddleware(t *testing.T) {
 		h(c)
 
 		result := resp.Result()
-		t.Log(result)
 		assert.Equal(t, http.StatusOK, result.StatusCode)
 		assert.Equal(t, "*", result.Header.Get("Access-Control-Allow-Origin"))
 	})

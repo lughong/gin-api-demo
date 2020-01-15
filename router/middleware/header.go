@@ -9,13 +9,17 @@ import (
 
 // CORS 处理CORS中间件
 func (m *GoMiddleware) CORS() gin.HandlerFunc {
-	/*return cors.New(cors.Config{
+	/*maxAge, err := time.ParseDuration(viper.GetString("cors.maxAge"))
+	if err != nil {
+		maxAge = 60 * time.Second
+	}
+	return cors.New(cors.Config{
 		AllowAllOrigins:  viper.GetBool("cors.allowAllOrigins"),
 		AllowMethods:     viper.GetStringSlice("cors.allowMethods"),
 		AllowHeaders:     viper.GetStringSlice("cors.allowHeaders"),
 		ExposeHeaders:    viper.GetStringSlice("cors.exposeHeaders"),
 		AllowCredentials: viper.GetBool("cors.allowCredentials"),
-		MaxAge:           time.Duration(viper.GetInt64("cors.maxAge")) * time.Hour,
+		MaxAge:           maxAge,
 	})*/
 
 	return func(c *gin.Context) {

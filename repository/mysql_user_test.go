@@ -4,10 +4,10 @@ import (
 	"context"
 	"testing"
 
-	"github.com/lughong/gin-api-demo/api/user/repository"
-
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/DATA-DOG/go-sqlmock.v2"
+
+	"github.com/lughong/gin-api-demo/repository"
 )
 
 func TestGetByUsername(t *testing.T) {
@@ -28,6 +28,6 @@ func TestGetByUsername(t *testing.T) {
 	anUser, err := userRepo.GetByUsername(context.TODO(), username)
 	assert.NoError(t, err)
 	if assert.NotNil(t, anUser) {
-		assert.Equal(t, username, anUser.GetUsername())
+		assert.Equal(t, username, anUser.Username)
 	}
 }

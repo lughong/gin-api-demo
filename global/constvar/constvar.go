@@ -1,0 +1,5 @@
+package constvar
+
+var (
+	RootDir = ""
+)

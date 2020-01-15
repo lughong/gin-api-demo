@@ -7,11 +7,10 @@ import (
 	"regexp"
 	"time"
 
-	"github.com/lughong/gin-api-demo/model"
-	"github.com/lughong/gin-api-demo/pkg/errno"
-
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
+
+	"github.com/lughong/gin-api-demo/global/errno"
 )
 
 // bodyLogWriter结构体
@@ -60,7 +59,10 @@ func (m *GoMiddleware) LoggerToFile() gin.HandlerFunc {
 		var statusCode, message = -1, ""
 
 		// 读取响应信息
-		var response model.Response
+		var response struct {
+			Code int    `json:"code"`
+			Msg  string `json:"msg"`
+		}
 		if err := json.Unmarshal(blw.body.Bytes(), &response); err != nil {
 			statusCode = errno.InternalServerError.Code
 			message = errno.InternalServerError.Message

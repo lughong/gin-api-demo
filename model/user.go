@@ -1,35 +1,25 @@
 package model
 
-// User 结构体
-type User struct {
-	id       int
-	username string
-	password string
-	age      int
-}
+import "context"
 
-// NewUser 获取一个User结构体指针
-func NewUser(id int, username, password string, age int) *User {
-	return &User{
-		id:       id,
-		username: username,
-		password: password,
-		age:      age,
+type (
+	// User 结构体
+	User struct {
+		ID       int
+		Username string
+		Password string
+		Age      int
 	}
-}
 
-func (u *User) GetID() int {
-	return u.id
-}
+	// UserLogic 定义user的逻辑接口
+	UserLogic interface {
+		GetByUsername(ctx context.Context, username string) (User, error)
+		Create(ctx context.Context, user User) (int64, error)
+	}
 
-func (u *User) GetUsername() string {
-	return u.username
-}
-
-func (u *User) GetPassword() string {
-	return u.password
-}
-
-func (u *User) GetAge() int {
-	return u.age
-}
+	// UserRepository 定义user的仓库接口
+	UserRepository interface {
+		GetByUsername(ctx context.Context, username string) (User, error)
+		Create(ctx context.Context, user User) (int64, error)
+	}
+)

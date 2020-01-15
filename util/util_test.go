@@ -4,16 +4,16 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/lughong/gin-api-demo/util"
-
 	"github.com/bxcodec/faker"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
+
+	"github.com/lughong/gin-api-demo/util"
 )
 
 func TestGetReqID(t *testing.T) {
-	var idTests = []struct{
-		in string
+	var idTests = []struct {
+		in       string
 		expected string
 	}{
 		{"1", "1"},

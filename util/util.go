@@ -33,32 +33,20 @@ func EncryptMD5(source string) (string, error) {
 	return hex.EncodeToString(md.Sum(nil)), nil
 }
 
-// PathExists 判断文件夹或文件是否存在
-func PathExists(path string) (bool, error) {
+// Exists 判断文件夹或文件是否存在
+func Exists(path string) bool {
 	_, err := os.Stat(path)
-	if err == nil {
-		return true, nil
-	}
-
-	if os.IsNotExist(err) {
-		return false, nil
-	}
-
-	return false, err
+	return err == nil || os.IsExist(err)
 }
 
 // CreateFile 创建文件
 func CreateFile(fileName string) (bool, error) {
-	ok, err := PathExists(fileName)
-	if err != nil {
-		return false, err
+	if exists := Exists(fileName); exists {
+		return true, nil
 	}
 
-	if !ok {
-		_, err := os.Create(fileName)
-		if err != nil {
-			return false, err
-		}
+	if _, err := os.Create(fileName); err != nil {
+		return false, err
 	}
 
 	return true, nil
@@ -66,15 +54,12 @@ func CreateFile(fileName string) (bool, error) {
 
 // CreateDir 创建文件夹
 func CreateDir(path string) (bool, error) {
-	ok, err := PathExists(path)
-	if err != nil {
-		return false, err
+	if exists := Exists(path); exists {
+		return true, nil
 	}
 
-	if !ok {
-		if err := os.MkdirAll(path, 0755); err != nil {
-			return false, err
-		}
+	if err := os.MkdirAll(path, 0755); err != nil {
+		return false, err
 	}
 
 	return true, nil

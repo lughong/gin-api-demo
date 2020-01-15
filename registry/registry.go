@@ -7,12 +7,12 @@ import (
 	"strconv"
 	"time"
 
-	_logic "github.com/lughong/gin-api-demo/api/user/logic"
-	_repository "github.com/lughong/gin-api-demo/api/user/repository"
-
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gomodule/redigo/redis"
 	"github.com/sarulabs/di"
+
+	_logic "github.com/lughong/gin-api-demo/logic"
+	_repository "github.com/lughong/gin-api-demo/repository"
 )
 
 var (
@@ -118,33 +118,28 @@ func buildMysqlPool(ctn di.Container) (interface{}, error) {
 		return nil, ErrDatabaseConfigNotFound
 	}
 
-	var (
-		driver   string
-		user     string
-		password string
-		addr     string
-		dbname   string
-
-		ok bool
-	)
-
-	if driver, ok = config.DBConfig["driver"]; !ok {
+	driver, ok := config.DBConfig["driver"]
+	if !ok {
 		return nil, ErrDatabaseDriverNotFound
 	}
 
-	if user, ok = config.DBConfig["user"]; !ok {
+	user, ok := config.DBConfig["user"]
+	if !ok {
 		return nil, ErrDatabaseUserNotFound
 	}
 
-	if password, ok = config.DBConfig["password"]; !ok {
+	password, ok := config.DBConfig["password"]
+	if !ok {
 		return nil, ErrDatabasePasswordNotFound
 	}
 
-	if addr, ok = config.DBConfig["addr"]; !ok {
+	addr, ok := config.DBConfig["addr"]
+	if !ok {
 		return nil, ErrDatabaseAddrNotFound
 	}
 
-	if dbname, ok = config.DBConfig["dbname"]; !ok {
+	dbname, ok := config.DBConfig["dbname"]
+	if !ok {
 		return nil, ErrDatabaseDBNameNotFound
 	}
 
@@ -164,18 +159,14 @@ func buildMysqlPool(ctn di.Container) (interface{}, error) {
 		return nil, err
 	}
 
-	if maxOpenConns, ok := config.DBConfig["maxOpenConns"]; ok {
-		if moc, err := strconv.Atoi(maxOpenConns); err == nil {
-			// 用于设置最大打开的连接数，默认值为0表示不限制.设置最大的连接数，可以避免并发太高导致连接mysql出现too many connections的错误
-			db.SetMaxOpenConns(moc)
-		}
+	if moc, err := strconv.Atoi(config.DBConfig["maxOpenConns"]); err == nil {
+		// 用于设置最大打开的连接数，默认值为0表示不限制.设置最大的连接数，可以避免并发太高导致连接mysql出现too many connections的错误
+		db.SetMaxOpenConns(moc)
 	}
 
-	if maxIdleConns, ok := config.DBConfig["maxIdleConns"]; ok {
-		if mic, err := strconv.Atoi(maxIdleConns); err == nil {
-			// 用于设置闲置的连接数.设置闲置的连接数则当开启的一个连接使用完成后可以放在池里等候下一次使用。
-			db.SetMaxIdleConns(mic)
-		}
+	if mic, err := strconv.Atoi(config.DBConfig["maxIdleConns"]); err == nil {
+		// 用于设置闲置的连接数.设置闲置的连接数则当开启的一个连接使用完成后可以放在池里等候下一次使用。
+		db.SetMaxIdleConns(mic)
 	}
 
 	return db, err
@@ -193,61 +184,45 @@ func buildRedisPool(ctn di.Container) (interface{}, error) {
 		return nil, ErrRedisConfigNotFound
 	}
 
-	var (
-		maxIdle     int
-		maxActive   int
-		idleTimeout int
-
-		protocol string
-		host     string
-		port     string
-		dbName   int
-
-		err error
-
-		ok bool
-	)
-
-	if protocol, ok = config.RedisConfig["protocol"]; !ok {
+	protocol, ok := config.RedisConfig["protocol"]
+	if !ok {
 		return nil, ErrRedisProtocolNotFound
 	}
 
-	if host, ok = config.RedisConfig["host"]; !ok {
+	host, ok := config.RedisConfig["host"]
+	if !ok {
 		return nil, ErrRedisHostNotFound
 	}
 
-	if port, ok = config.RedisConfig["port"]; !ok {
+	port, ok := config.RedisConfig["port"]
+	if !ok {
 		return nil, ErrRedisPortNotFound
 	}
 
-	if db, ok := config.RedisConfig["db"]; ok {
-		if dbName, err = strconv.Atoi(db); err != nil {
-			dbName = 0
-		}
+	dbName, err := strconv.Atoi(config.RedisConfig["db"])
+	if err != nil {
+		dbName = 1
 	}
 
-	if mi, ok := config.RedisConfig["maxIdle"]; ok {
-		if maxIdle, err = strconv.Atoi(mi); err != nil {
-			maxIdle = 3
-		}
+	maxIdle, err := strconv.Atoi(config.RedisConfig["maxIdle"])
+	if err != nil {
+		maxIdle = 3
 	}
 
-	if ma, ok := config.RedisConfig["maxActive"]; ok {
-		if maxActive, err = strconv.Atoi(ma); err != nil {
-			maxActive = 3
-		}
+	maxActive, err := strconv.Atoi(config.RedisConfig["maxActive"])
+	if err != nil {
+		maxActive = 3
 	}
 
-	if it, ok := config.RedisConfig["idleTimeout"]; ok {
-		if idleTimeout, err = strconv.Atoi(it); err != nil {
-			idleTimeout = 30
-		}
+	idleTimeout, err := time.ParseDuration(config.RedisConfig["idleTimeout"])
+	if err != nil {
+		idleTimeout = 30 * time.Second
 	}
 
 	return &redis.Pool{
 		MaxIdle:     maxIdle,
 		MaxActive:   maxActive,
-		IdleTimeout: time.Duration(idleTimeout),
+		IdleTimeout: idleTimeout,
 		Dial: func() (redis.Conn, error) {
 			// 链接redis
 			c, err := redis.Dial(
@@ -292,18 +267,12 @@ func buildRedis(ctn di.Container) (interface{}, error) {
 
 // buildUserLogic 建立一个user的逻辑处理实例
 func buildUserLogic(ctn di.Container) (interface{}, error) {
-	var (
-		timeout int
-
-		err error
-	)
-	if t, ok := config.ContextConfig["timeout"]; ok {
-		if timeout, err = strconv.Atoi(t); err != nil {
-			timeout = 30
-		}
+	timeout, err := time.ParseDuration(config.ContextConfig["timeout"])
+	if err != nil {
+		timeout = 5 * time.Second
 	}
 
 	userRepo := _repository.NewMysqlUserRepository(ctn.Get("mysql").(*sql.DB))
-	userLogic := _logic.NewUserLogic(userRepo, time.Duration(timeout)*time.Second)
+	userLogic := _logic.NewUserLogic(userRepo, timeout)
 	return userLogic, nil
 }

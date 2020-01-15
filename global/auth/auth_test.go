@@ -3,10 +3,10 @@ package auth_test
 import (
 	"testing"
 
-	"github.com/lughong/gin-api-demo/pkg/auth"
-
 	"github.com/bxcodec/faker"
 	"github.com/stretchr/testify/assert"
+
+	"github.com/lughong/gin-api-demo/global/auth"
 )
 
 func TestEncrypt(t *testing.T) {

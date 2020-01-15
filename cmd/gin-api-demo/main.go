@@ -3,25 +3,35 @@ package main
 import (
 	"encoding/json"
 	"log"
-
-	"github.com/lughong/gin-api-demo/config"
-	version2 "github.com/lughong/gin-api-demo/pkg/version"
-	"github.com/lughong/gin-api-demo/registry"
-	"github.com/lughong/gin-api-demo/router"
-	"github.com/lughong/gin-api-demo/router/middleware"
+	"os"
+	"path/filepath"
 
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
+
+	"github.com/lughong/gin-api-demo/config"
+	"github.com/lughong/gin-api-demo/global/constvar"
+	version2 "github.com/lughong/gin-api-demo/global/version"
+	"github.com/lughong/gin-api-demo/registry"
+	"github.com/lughong/gin-api-demo/router"
+	"github.com/lughong/gin-api-demo/router/middleware"
+	"github.com/lughong/gin-api-demo/util"
 )
 
 var (
-	cfg     = pflag.StringP("config", "c", "conf/config.yaml", "config file path.")
+	cfg     = pflag.StringP("config", "c", "config", "config file name.")
 	version = pflag.BoolP("version", "v", false, "show version info.")
 )
 
 func init() {
 	pflag.Parse()
+
+	// 设置根目录
+	constvar.RootDir = "."
+	if viper.InConfig("server.port") {
+		constvar.RootDir = interRootDir()
+	}
 
 	// 设置配置文件路径
 	c := config.NewConfig(func(c *config.Config) {
@@ -31,6 +41,25 @@ func init() {
 	if err := c.Load(); err != nil {
 		log.Fatalf("Config load. %s", err)
 	}
+}
+
+// interRootDir 初始化项目根目录
+func interRootDir() string {
+	cwd, err := os.Getwd()
+	if err != nil {
+		log.Fatalf("Getwd. %s", err)
+	}
+
+	var inter func(d string) string
+	inter = func(d string) string {
+		if util.Exists(d + "/config") {
+			return d
+		}
+
+		return inter(filepath.Dir(d))
+	}
+
+	return inter(cwd)
 }
 
 // @title gin-api-demo Example API
@@ -76,6 +105,7 @@ func main() {
 		m.Secure(),
 		m.RequestId(),
 		m.LoggerToFile(),
+		m.Auth(),
 	}
 	r := router.NewRouter(mw)
 	if err := r.Run(ctn); err != nil {

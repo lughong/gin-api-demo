@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/lughong/gin-api-demo/pkg/errno"
+	"github.com/lughong/gin-api-demo/global/errno"
 )
 
 func TestAdd(t *testing.T) {

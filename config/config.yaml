@@ -1,14 +1,21 @@
+##################################
+# 该配置文件可以放置在以下三个目录里面
+# /etc/gin-api-demo
+# $HOME/.gin-api-demo
+# App.RootDir/config
+##################################
 # 服务配置
 server:
   env: dev
   runMode: debug
   port: :8090
-  readTimeout: 60
-  writeTimeout: 60
   jwtSecret: sdjf934785974FJMSMBN043534utjldsdfLKJ}P|Q@#!glkdjg
 
 context:
-  timeout: 5 # seconds
+  timeout: 5s
+
+token:
+  timeout: 3600s
 
 # 数据库配置
 database:
@@ -30,7 +37,7 @@ redis:
   protocol: tcp
   maxIdle: 3
   maxActive: 3
-  idleTimeout: 60
+  idleTimeout: 60s
 
 # log配置
 log:
@@ -64,4 +71,4 @@ cors:
     - Last-Modified
     - Pragma
   allowCredentials: false
-  maxAge: 2 # 单位: 小时
+  maxAge: 2m

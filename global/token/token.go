@@ -12,13 +12,13 @@ import (
 
 var (
 	// ErrMissingHeader 设置请求头Authorization内容为空的错误提示
-	ErrMissingHeader = errors.New("The length of the Authorization header is zero. ")
+	ErrMissingHeader   = errors.New("The length of the Authorization header is zero. ")
+	ErrNotJwtMapClaims = errors.New("The token Claims is not jwt.MapClaims. ")
 )
 
 // Context jwt令牌的内容
 type Context struct {
-	ID       string
-	Email    string
+	ID       float64
 	Username string
 }
 
@@ -29,17 +29,22 @@ func Sign(c *gin.Context, ctx Context, secret string) (tokenString string, err e
 		secret = viper.GetString("server.jwtSecret")
 	}
 
+	var expire time.Duration
+	if expire, err = time.ParseDuration(viper.GetString("token.timeout")); err != nil {
+		expire = 3600 * time.Second
+	}
+
 	// 设置token内容
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"id":       ctx.ID,
-		"email":    ctx.Email,
 		"username": ctx.Username,
 		"nbf":      time.Now().Unix(),
-		"iat":      time.Unix,
+		"iat":      time.Now().Unix(),
+		"exp":      time.Now().Add(expire).Unix(),
 	})
 
 	// 使用密钥对token内容做签名加密
-	tokenString, err = token.SignedString(secret)
+	tokenString, err = token.SignedString([]byte(secret))
 	return
 }
 
@@ -62,17 +67,24 @@ func Parse(tokenString string, secret string) (*Context, error) {
 
 	// 解析token
 	token, err := jwt.Parse(tokenString, secretFunc(secret))
-	if err != nil {
-		return ctx, err
-	} else if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-		// 读取token内容
-		ctx.ID = claims["id"].(string)
-		ctx.Email = claims["email"].(string)
-		ctx.Username = claims["username"].(string)
-		return ctx, nil
-	} else {
+	if err != nil || !token.Valid {
 		return ctx, err
 	}
+
+	claims, ok := token.Claims.(jwt.MapClaims)
+	if !ok {
+		return ctx, ErrNotJwtMapClaims
+	}
+
+	// 读取token内容
+	if id, ok := claims["id"].(float64); ok {
+		ctx.ID = id
+	}
+	if username, ok := claims["username"].(string); ok {
+		ctx.Username = username
+	}
+
+	return ctx, nil
 }
 
 // ParseRequest 解析请求，获取token内容

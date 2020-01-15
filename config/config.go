@@ -6,13 +6,14 @@ import (
 	"strings"
 	"time"
 
-	"github.com/lughong/gin-api-demo/util"
-
 	"github.com/fsnotify/fsnotify"
 	rotates "github.com/lestrrat-go/file-rotatelogs"
 	"github.com/rifflock/lfshook"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
+
+	"github.com/lughong/gin-api-demo/global/constvar"
+	"github.com/lughong/gin-api-demo/util"
 )
 
 // ModOption 在新建结构体的时候调用该函数修改默认值
@@ -52,13 +53,15 @@ func (c *Config) Load() error {
 
 // initConfig 解析和读取配置文件内容，这里使用的是yaml格式的配置文件
 func (c *Config) initConfig() error {
-	viper.SetConfigFile(c.Name)
-	viper.SetConfigType("yaml")
+	viper.SetConfigName(c.Name)
+	viper.AddConfigPath("/etc/gin-api-demo")
+	viper.AddConfigPath("$HOME/.gin-api-demo")
+	viper.AddConfigPath(constvar.RootDir + "/config")
 
 	// 设置环境变量前缀，可以通过环境变量来覆盖配置文件的值。
 	// 优先级 explicit call to Set>flag>env>config>key/value store>default
 	viper.AutomaticEnv()
-	viper.SetEnvPrefix("MALL")
+	viper.SetEnvPrefix("DEMO")
 	replacer := strings.NewReplacer(".", "_")
 	viper.SetEnvKeyReplacer(replacer)
 

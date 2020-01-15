@@ -3,16 +3,16 @@ package router
 import (
 	"net/http"
 
-	"github.com/lughong/gin-api-demo/api/user"
-	_handler "github.com/lughong/gin-api-demo/api/user/handler/http"
-	_ "github.com/lughong/gin-api-demo/docs"
-	"github.com/lughong/gin-api-demo/registry"
-
 	"github.com/gin-contrib/pprof"
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/viper"
 	ginSwagger "github.com/swaggo/gin-swagger"
 	"github.com/swaggo/gin-swagger/swaggerFiles"
+
+	_ "github.com/lughong/gin-api-demo/docs"
+	_http "github.com/lughong/gin-api-demo/handler/http"
+	"github.com/lughong/gin-api-demo/model"
+	"github.com/lughong/gin-api-demo/registry"
 )
 
 type Router struct {
@@ -46,7 +46,7 @@ func (r *Router) Run(ctn *registry.Container) error {
 
 	pprof.Register(r.g)
 
-	_handler.NewUserHandler(r.g, ctn.Resolve("user-logic").(user.Logic))
+	_http.NewUserHandler(r.g, ctn.Resolve("user-logic").(model.UserLogic))
 
 	return r.g.Run(viper.GetString("server.port"))
 }
