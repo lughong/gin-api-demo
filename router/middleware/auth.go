@@ -15,7 +15,7 @@ func (m *GoMiddleware) Auth() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		path := c.Request.URL.Path
 
-		reg := regexp.MustCompile(`(/static|/login|/favicon.ico)`)
+		reg := regexp.MustCompile(`(/debug|/swagger|/static|/login|/favicon.ico)`)
 		if reg.MatchString(path) {
 			return
 		}

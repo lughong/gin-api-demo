@@ -6,6 +6,8 @@ import (
 	"os"
 
 	"github.com/gin-gonic/gin"
+	"github.com/spf13/viper"
+	"gopkg.in/gomail.v2"
 )
 
 // GetReqID 获取设置的X-Request-Id值
@@ -63,4 +65,35 @@ func CreateDir(path string) (bool, error) {
 	}
 
 	return true, nil
+}
+
+// SendMail 发送邮件
+func SendMail(mailTo []string, subject string, body string) error {
+	// 是否已经开启发送开关
+	if !viper.GetBool("mail.sendOpen") {
+		return nil
+	}
+
+	m := gomail.NewMessage()
+
+	// 设置发件人
+	m.SetHeader("From", viper.GetString("mail.from"))
+
+	// 设置发送给多个用户
+	m.SetHeader("To", mailTo...)
+
+	// 设置邮件主题
+	m.SetHeader("Subject", subject)
+
+	// 设置邮件正文
+	m.SetBody("text/html", body)
+
+	d := gomail.NewDialer(
+		viper.GetString("mail.host"),
+		viper.GetInt("mail.port"),
+		viper.GetString("mail.user"),
+		viper.GetString("mail.password"),
+	)
+
+	return d.DialAndSend(m)
 }

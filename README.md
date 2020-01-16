@@ -6,12 +6,10 @@ Go API(REST + JSON)
 
 目录结构
 ~~~
-
 ├── cmd                        # Go程序唯一入口
 ├── config                     # 专门用来处理配置和配置文件的Go package
 ├── docs                       # 文档存放目录
 ├── global                     # 全局包目录
-│   ├── auth                   # 认证包
 │   ├── constvar               # 常量统一存放位置
 │   ├── errno                  # 错误码存放位置
 │   ├── redis                  # redis包
@@ -24,8 +22,7 @@ Go API(REST + JSON)
 ├── registry                   # 依赖注入容器
 ├── repository                 # 仓库实现层（NoSQL、RDBMS、Micro-Services）
 ├── router                     # 路由相关处理
-│   ├── middleware             # API服务器用的是Gin Web框架，Gin中间件存放位置
-│   └── router.go              # 路由处理
+│   └── middleware             # API服务器用的是Gin Web框架，Gin中间件存放位置
 ├── util                       # 工具类函数存放目录
 ├── Makefile                   # Makefile文件
 ├── README.md                  # README.md文件
@@ -50,9 +47,7 @@ mysql> FLUSH PRIVILEGES;
 
 运行项目
 ~~~
-$ make gotest
-$ make
-$ make run
+$ go run github.com/lughong/gin-api-demo/cmd/...
 ~~~
 
 运行过程若出现module失败，可以尝试设置GOPROXY环境变量
@@ -63,11 +58,9 @@ $ export GOPROXY=https://goproxy.cn,direct
 
 测试服务是否正常
 ~~~
-停止验证token中间件，创建登录用户
 $ curl -XPOST -H "Content-Type: application/json; charset=utf8;" http://localhost:8090/user -d '{"username":"admin", "password":"admin"}'
 响应结果：{"code":0,"msg":"OK","data":{"username":"admin"}}
 
-开启验证token中间件
 $ curl -XPOST -H "Content-Type: application/json; charset=utf8;" http://localhost:8090/login -d '{"username":"admin", "password":"admin"}'
 响应结果：{"code":0,"msg":"OK","data":{"token":"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOiIyMDIwLTAxLTE1VDA5OjU3OjIyLjA3ODAwMjk0OCswODowMCIsImlhdCI6MTU3OTA1MzQxMiwiaWQiOjEsIm5iZiI6MTU3OTA1MzQxMiwidXNlcm5hbWUiOiJhZG1pbiJ9.IT_X3ElBuUEksGGmnD57fDF3MFwnUDf74bAikaSdLqo"}}
 
@@ -80,7 +73,7 @@ $ curl -XGET -H "Content-Type: application/json; charset=utf8;" http://localhost
 
 构建脚本运行项目
 ~~~
-$ make clean
+$ make gotest
 $ make
-$ ./gin-api-demo
+$ make run
 ~~~

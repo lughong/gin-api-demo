@@ -6,6 +6,7 @@
 ##################################
 # 服务配置
 server:
+  appName: gin-api-demo
   env: dev
   runMode: debug
   port: :8090
@@ -72,3 +73,16 @@ cors:
     - Pragma
   allowCredentials: false
   maxAge: 2m
+
+# mail 邮件配置
+mail:
+  sendOpen: false
+  from: test123@qq.com
+  to:
+    - test123@qq.com
+    - test456@qq.com
+  host: 127.0.0.1
+  port: 456
+  user: test123
+  password: test123
+

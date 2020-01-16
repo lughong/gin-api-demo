@@ -100,11 +100,12 @@ func main() {
 	// 配置路由
 	m := middleware.NewGoMiddleware()
 	mw := []gin.HandlerFunc{
+		m.Recover(),
+		m.LoggerToFile(),
 		m.CORS(),
 		m.NoCache(),
 		m.Secure(),
 		m.RequestId(),
-		m.LoggerToFile(),
 		m.Auth(),
 	}
 	r := router.NewRouter(mw)

@@ -5,6 +5,8 @@ import (
 	"database/sql"
 	"time"
 
+	"github.com/sirupsen/logrus"
+
 	"github.com/lughong/gin-api-demo/global/errno"
 	"github.com/lughong/gin-api-demo/model"
 )
@@ -36,6 +38,7 @@ func (u *userLogic) GetByUsername(c context.Context, username string) (model.Use
 
 	// 如果系统错误，记录日志
 	if err != nil {
+		logrus.Errorf("UserLogic GetByUsername. %s", err)
 		return user, err
 	}
 
@@ -49,6 +52,7 @@ func (u *userLogic) Create(c context.Context, user model.User) (int64, error) {
 
 	lastInsertId, err := u.userRepo.Create(ctx, user)
 	if err != nil {
+		logrus.Errorf("UserLogic Create. %s", err)
 		return 0, err
 	}
 

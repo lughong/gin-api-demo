@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"io/ioutil"
-	"regexp"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -29,12 +28,6 @@ func (w bodyLogWriter) Write(b []byte) (int, error) {
 // LoggerToFile 把日志记录在 File。这是一个中间件函数，可以记录每一次客户端请求的信息。
 func (m *GoMiddleware) LoggerToFile() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		reqURI := c.Request.RequestURI
-		reg := regexp.MustCompile(`(/login|/favicon.ico)`)
-		if reg.MatchString(reqURI) {
-			return
-		}
-
 		// 读取请求body内容
 		var bodyBytes []byte
 		if c.Request.Body != nil {
@@ -72,15 +65,19 @@ func (m *GoMiddleware) LoggerToFile() gin.HandlerFunc {
 		}
 
 		// the basic information
+		reqURI := c.Request.RequestURI
 		clientIP := c.ClientIP()
 		reqMethod := c.Request.Method
 
 		logrus.Infof(
-			"%s | %s | %s | %s | %s | {code: %d, message: %s} ",
-			latencyTime,
+			"| %s | %s | %s | %s | %d | %s | %s | %s | {code: %d, message: %s} |",
 			clientIP,
 			reqMethod,
 			reqURI,
+			c.Request.Proto,
+			c.Writer.Status(),
+			latencyTime,
+			c.Request.UserAgent(),
 			bodyBytes,
 			statusCode,
 			message,

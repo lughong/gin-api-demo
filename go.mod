@@ -26,9 +26,10 @@ require (
 	github.com/swaggo/gin-swagger v1.2.0
 	github.com/swaggo/swag v1.6.3
 	github.com/tebeka/strftime v0.1.3 // indirect
-	golang.org/x/crypto v0.0.0-20190510104115-cbcb75029529
 	golang.org/x/sys v0.0.0-20191228213918-04cbcbbfeed8 // indirect
 	google.golang.org/appengine v1.5.0 // indirect
 	gopkg.in/DATA-DOG/go-sqlmock.v2 v2.0.0-20180914054222-c19298f520d0
+	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
 	gopkg.in/go-playground/validator.v9 v9.29.1
+	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df
 )

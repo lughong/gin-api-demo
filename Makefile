@@ -22,7 +22,7 @@ gotool:
 	gofmt -w .
 	go vet ./... 2>&1 | grep -v vendor;true
 gotest:
-	go test -v ./... -bench="."
+	go test -v ./... -bench=.
 run:
 	./gin-api-demo &
 help:

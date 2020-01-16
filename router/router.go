@@ -26,8 +26,7 @@ func NewRouter(mw []gin.HandlerFunc) *Router {
 
 	g := gin.New()
 
-	// 设置panic恢复中间件
-	g.Use(gin.Recovery())
+	// 设置中间件
 	g.Use(mw...)
 
 	// 404
