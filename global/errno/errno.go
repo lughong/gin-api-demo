@@ -1,6 +1,9 @@
 package errno
 
-import "fmt"
+import (
+	"bytes"
+	"fmt"
+)
 
 // Errno 结构体 Code错误码、Message错误信息
 type Errno struct {
@@ -13,29 +16,41 @@ func (e *Errno) Error() string {
 }
 
 type Err struct {
-	Code    int
-	Message string
-	Err     error
+	Code int
+	Err  error
+
+	buf bytes.Buffer
 }
 
 func New(errno *Errno, err error) *Err {
-	return &Err{Code: errno.Code, Message: errno.Message, Err: err}
+	e := &Err{
+		Code: errno.Code,
+		Err:  err,
+	}
+
+	e.buf.WriteString(errno.Message)
+
+	return e
 }
 
 // Error 实现error接口，输出错误信息。
 func (err *Err) Error() string {
-	return fmt.Sprintf("Err - code: %d, message: %s, error: %s", err.Code, err.Message, err.Err)
+	return fmt.Sprintf("Err - code: %d, message: %s, error: %s", err.Code, err.buf.String(), err.Err)
 }
 
 // Add 新增错误信息
 func (err *Err) Add(message string) error {
-	err.Message += " " + message
+	err.buf.WriteString(" ")
+	err.buf.WriteString(message)
+
 	return err
 }
 
 // Addf 追加错误信息
 func (err *Err) Addf(format string, args ...interface{}) error {
-	err.Message += " " + fmt.Sprintf(format, args...)
+	err.buf.WriteString(" ")
+	err.buf.WriteString(fmt.Sprintf(format, args...))
+
 	return err
 }
 
@@ -53,7 +68,7 @@ func DecodeErr(err error) (int, string) {
 
 	switch typed := err.(type) {
 	case *Err:
-		return typed.Code, typed.Message
+		return typed.Code, typed.buf.String()
 	case *Errno:
 		return typed.Code, typed.Message
 	default:

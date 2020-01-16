@@ -21,12 +21,23 @@ func TestAdd(t *testing.T) {
 		errStr,
 	)
 
-	e := errno.New(errno.ErrPasswordIncorrect, err)
-	_ = e.Add(addStr)
+	t.Run("Add", func(t *testing.T) {
+		e := errno.New(errno.ErrPasswordIncorrect, err)
+		_ = e.Add(addStr)
 
-	if e.Error() != expected {
-		t.Error("actual not equal expected.")
-	}
+		if e.Error() != expected {
+			t.Error("actual not equal expected.")
+		}
+	})
+
+	t.Run("Addf", func(t *testing.T) {
+		e := errno.New(errno.ErrPasswordIncorrect, err)
+		_ = e.Addf(addStr)
+
+		if e.Error() != expected {
+			t.Error("actual not equal expected.")
+		}
+	})
 }
 
 func BenchmarkAdd(b *testing.B) {
@@ -36,5 +47,15 @@ func BenchmarkAdd(b *testing.B) {
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		_ = e.Add(expected)
+	}
+}
+
+func BenchmarkAddf(b *testing.B) {
+	expected := "test"
+	e := new(errno.Err)
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		_ = e.Addf(expected)
 	}
 }
