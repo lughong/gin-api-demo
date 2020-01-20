@@ -1,11 +1,11 @@
 {
     "swagger": "2.0",
     "info": {
-        "description": "gin api demo",
-        "title": "gin-api-demo Example API",
+        "description": "使用GO语言gin框架开发的Restful API example",
+        "title": "Restful API",
         "contact": {
             "name": "lughong",
-            "url": "http://www.swagger.io/support",
+            "url": "https://github.com/lughong/gin-api-demo",
             "email": "1586668924@qq.com"
         },
         "license": {},
@@ -14,76 +14,121 @@
     "host": "localhost:8090",
     "basePath": "/v1",
     "paths": {
-        "/v1/user": {
-            "get": {
-                "description": "Get user info",
+        "/login": {
+            "post": {
+                "description": "登录成功返回一个token，后面访问操作都需要带上这个token值作校验",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Login"
+                ],
+                "summary": "用户登录",
+                "parameters": [
+                    {
+                        "description": "Username",
+                        "name": "username",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "description": "Password",
+                        "name": "password",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"code\":0,\"msg\":\"OK\",\"data\":{\"token\":\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE1Nzg5OTU0NTMsImlkIjozLCJuYmYiOjE1Nzg5OTU0NTMsInVzZXJuYW1lIjoibGlzaSJ9.agmaafda4LwOqkqDbIkpV9AHkdaoFVHhOMkasu_qCTM\"}}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/user": {
+            "post": {
+                "description": "成功后，返回新增用户名称",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "user"
                 ],
-                "summary": "Get user info of the database",
+                "summary": "新增一个用户",
                 "parameters": [
                     {
-                        "description": "Get user info for the username",
+                        "description": "Username",
                         "name": "username",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "object",
-                            "$ref": "#/definitions/handler.CreateRequest"
+                            "type": "string"
                         }
                     },
                     {
-                        "description": "Get user info for the password",
+                        "description": "Password",
                         "name": "password",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "object",
-                            "$ref": "#/definitions/handler.CreateRequest"
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "description": "Password",
+                        "name": "age",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "{\"code\":0,\"msg\":\"OK\",\"data\":{\"id\":1,\"username\":\"zhangsan\",\"password\":\"\",\"age\":18}}",
+                        "description": "{\"code\":0,\"msg\":\"OK\",\"data\":{\"username\":\"zhangsan\"}}",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "type": "string"
                         }
                     }
                 }
             }
-        }
-    },
-    "definitions": {
-        "handler.CreateRequest": {
-            "type": "object",
-            "required": [
-                "password",
-                "username"
-            ],
-            "properties": {
-                "password": {
-                    "type": "string"
-                },
-                "username": {
-                    "type": "string"
-                }
-            }
         },
-        "handler.Response": {
-            "type": "object",
-            "properties": {
-                "code": {
-                    "type": "integer"
-                },
-                "data": {
-                    "type": "object"
-                },
-                "msg": {
-                    "type": "string"
+        "/user/{username}": {
+            "get": {
+                "description": "从数据库中获取用户信息",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "获取用户信息",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Username",
+                        "name": "username",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"code\":0,\"msg\":\"OK\",\"data\":{\"username\":\"zhangsan\",\"age\":18}}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
                 }
             }
         }

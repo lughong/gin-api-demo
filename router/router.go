@@ -40,12 +40,18 @@ func NewRouter(mw []gin.HandlerFunc) *Router {
 }
 
 // Run 运行路由
-func (r *Router) Run(ctn *registry.Container) error {
-	r.g.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
-
+func (r *Router) InitHandler(ctn *registry.Container) *gin.Engine {
 	pprof.Register(r.g)
 
-	_http.NewUserHandler(r.g, ctn.Resolve("user-logic").(model.UserLogic))
+	r.g.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
-	return r.g.Run(viper.GetString("server.port"))
+	userHandler := _http.NewUserHandler(ctn.Resolve("user-logic").(model.UserLogic))
+	v1 := r.g.Group("/v1")
+	{
+		v1.GET("/user/:username", userHandler.GetByUsername)
+		v1.POST("/user", userHandler.Create)
+		v1.POST("/login", userHandler.Login)
+	}
+
+	return r.g
 }

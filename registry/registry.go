@@ -4,12 +4,12 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"strconv"
 	"time"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gomodule/redigo/redis"
 	"github.com/sarulabs/di"
+	"github.com/spf13/viper"
 
 	_logic "github.com/lughong/gin-api-demo/logic"
 	_repository "github.com/lughong/gin-api-demo/repository"
@@ -17,7 +17,6 @@ import (
 
 var (
 	// database config error code
-	ErrDatabaseConfigNotFound   = errors.New("The database config was not found. ")
 	ErrDatabaseDriverNotFound   = errors.New("The driver was not found for database config. ")
 	ErrDatabaseUserNotFound     = errors.New("The user was not found for database config. ")
 	ErrDatabasePasswordNotFound = errors.New("The password was not found for database config. ")
@@ -25,28 +24,16 @@ var (
 	ErrDatabaseDBNameNotFound   = errors.New("The dbname was not found for database config. ")
 
 	// redis config error code
-	ErrRedisConfigNotFound   = errors.New("The redis config was not found. ")
 	ErrRedisProtocolNotFound = errors.New("The protocol was not found for redis config. ")
-	ErrRedisHostNotFound     = errors.New("The host was not found for redis config. ")
-	ErrRedisPortNotFound     = errors.New("The port was not found for redis config. ")
+	ErrRedisAddrNotFound     = errors.New("The addr was not found for redis config. ")
 )
-
-var config Config
-
-type Config struct {
-	DBConfig      map[string]string
-	RedisConfig   map[string]string
-	ContextConfig map[string]string
-}
 
 type Container struct {
 	ctn di.Container
 }
 
 // CreateApp 依赖注入容器
-func NewContainer(cfg Config) (*Container, error) {
-	config = cfg
-
+func NewContainer() (*Container, error) {
 	builder, err := di.NewBuilder()
 	if err != nil {
 		return nil, err
@@ -114,32 +101,28 @@ func (c *Container) Delete() error {
 
 // buildMysqlPool 链接mysql
 func buildMysqlPool(ctn di.Container) (interface{}, error) {
-	if len(config.DBConfig) == 0 {
-		return nil, ErrDatabaseConfigNotFound
-	}
-
-	driver, ok := config.DBConfig["driver"]
-	if !ok {
+	driver := viper.GetString("database.driver")
+	if driver == "" {
 		return nil, ErrDatabaseDriverNotFound
 	}
 
-	user, ok := config.DBConfig["user"]
-	if !ok {
+	user := viper.GetString("database.user")
+	if user == "" {
 		return nil, ErrDatabaseUserNotFound
 	}
 
-	password, ok := config.DBConfig["password"]
-	if !ok {
+	password := viper.GetString("database.password")
+	if password == "" {
 		return nil, ErrDatabasePasswordNotFound
 	}
 
-	addr, ok := config.DBConfig["addr"]
-	if !ok {
+	addr := viper.GetString("database.addr")
+	if addr == "" {
 		return nil, ErrDatabaseAddrNotFound
 	}
 
-	dbname, ok := config.DBConfig["dbname"]
-	if !ok {
+	dbName := viper.GetString("database.dbName")
+	if dbName == "" {
 		return nil, ErrDatabaseDBNameNotFound
 	}
 
@@ -148,7 +131,7 @@ func buildMysqlPool(ctn di.Container) (interface{}, error) {
 		user,
 		password,
 		addr,
-		dbname,
+		dbName,
 		"utf8",
 		true,
 		"Local",
@@ -159,12 +142,10 @@ func buildMysqlPool(ctn di.Container) (interface{}, error) {
 		return nil, err
 	}
 
-	if moc, err := strconv.Atoi(config.DBConfig["maxOpenConns"]); err == nil {
-		// 用于设置最大打开的连接数，默认值为0表示不限制.设置最大的连接数，可以避免并发太高导致连接mysql出现too many connections的错误
-		db.SetMaxOpenConns(moc)
-	}
+	// 用于设置最大打开的连接数，默认值为0表示不限制.设置最大的连接数，可以避免并发太高导致连接mysql出现too many connections的错误
+	db.SetMaxOpenConns(viper.GetInt("database.maxOpenConns"))
 
-	if mic, err := strconv.Atoi(config.DBConfig["maxIdleConns"]); err == nil {
+	if mic := viper.GetInt("database.maxIdleConns"); mic > 0 {
 		// 用于设置闲置的连接数.设置闲置的连接数则当开启的一个连接使用完成后可以放在池里等候下一次使用。
 		db.SetMaxIdleConns(mic)
 	}
@@ -180,69 +161,42 @@ func buildMysql(ctn di.Container) (interface{}, error) {
 
 // buildRedisPool 链接redis
 func buildRedisPool(ctn di.Container) (interface{}, error) {
-	if len(config.RedisConfig) == 0 {
-		return nil, ErrRedisConfigNotFound
-	}
-
-	protocol, ok := config.RedisConfig["protocol"]
-	if !ok {
+	protocol := viper.GetString("redis.protocol")
+	if protocol == "" {
 		return nil, ErrRedisProtocolNotFound
 	}
 
-	host, ok := config.RedisConfig["host"]
-	if !ok {
-		return nil, ErrRedisHostNotFound
+	addr := viper.GetString("redis.addr")
+	if addr == "" {
+		return nil, ErrRedisAddrNotFound
 	}
 
-	port, ok := config.RedisConfig["port"]
-	if !ok {
-		return nil, ErrRedisPortNotFound
-	}
-
-	dbName, err := strconv.Atoi(config.RedisConfig["db"])
-	if err != nil {
-		dbName = 1
-	}
-
-	maxIdle, err := strconv.Atoi(config.RedisConfig["maxIdle"])
-	if err != nil {
-		maxIdle = 3
-	}
-
-	maxActive, err := strconv.Atoi(config.RedisConfig["maxActive"])
-	if err != nil {
-		maxActive = 3
-	}
-
-	idleTimeout, err := time.ParseDuration(config.RedisConfig["idleTimeout"])
+	idleTimeout, err := time.ParseDuration(viper.GetString("redis.idleTimeout"))
 	if err != nil {
 		idleTimeout = 30 * time.Second
 	}
 
 	return &redis.Pool{
-		MaxIdle:     maxIdle,
-		MaxActive:   maxActive,
+		MaxIdle:     viper.GetInt("redis.maxIdle"),
+		MaxActive:   viper.GetInt("redis.maxActive"),
 		IdleTimeout: idleTimeout,
 		Dial: func() (redis.Conn, error) {
 			// 链接redis
-			c, err := redis.Dial(
-				protocol,
-				host+port,
-			)
+			c, err := redis.Dial(protocol, addr)
 			if err != nil {
 				return nil, err
 			}
 
 			// 进行校验，如果设置了密码
-			if config.RedisConfig["password"] != "" {
-				if _, err := c.Do("AUTH", config.RedisConfig["password"]); err != nil {
+			if password := viper.GetString("redis.password"); password != "" {
+				if _, err := c.Do("AUTH", password); err != nil {
 					_ = c.Close()
 					return nil, err
 				}
 			}
 
 			// 选择操作库
-			if _, err := c.Do("SELECT", dbName); err != nil {
+			if _, err := c.Do("SELECT", viper.GetInt("redis.dbName")); err != nil {
 				_ = c.Close()
 				return nil, err
 			}
@@ -267,7 +221,7 @@ func buildRedis(ctn di.Container) (interface{}, error) {
 
 // buildUserLogic 建立一个user的逻辑处理实例
 func buildUserLogic(ctn di.Container) (interface{}, error) {
-	timeout, err := time.ParseDuration(config.ContextConfig["timeout"])
+	timeout, err := time.ParseDuration(viper.GetString("context.timeout"))
 	if err != nil {
 		timeout = 5 * time.Second
 	}

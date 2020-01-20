@@ -1,61 +1,90 @@
 basePath: /v1
-definitions:
-  handler.CreateRequest:
-    properties:
-      password:
-        type: string
-      username:
-        type: string
-    required:
-    - password
-    - username
-    type: object
-  handler.Response:
-    properties:
-      code:
-        type: integer
-      data:
-        type: object
-      msg:
-        type: string
-    type: object
 host: localhost:8090
 info:
   contact:
     email: 1586668924@qq.com
     name: lughong
-    url: http://www.swagger.io/support
-  description: gin api demo
+    url: https://github.com/lughong/gin-api-demo
+  description: 使用GO语言gin框架开发的Restful API example
   license: {}
-  title: gin-api-demo Example API
+  title: Restful API
   version: "1.0"
 paths:
-  /v1/user:
-    get:
-      description: Get user info
+  /login:
+    post:
+      description: 登录成功返回一个token，后面访问操作都需要带上这个token值作校验
       parameters:
-      - description: Get user info for the username
+      - description: Username
         in: body
         name: username
         required: true
         schema:
-          $ref: '#/definitions/handler.CreateRequest'
-          type: object
-      - description: Get user info for the password
+          type: string
+      - description: Password
         in: body
         name: password
         required: true
         schema:
-          $ref: '#/definitions/handler.CreateRequest'
-          type: object
+          type: string
       produces:
       - application/json
       responses:
         "200":
-          description: '{"code":0,"msg":"OK","data":{"id":1,"username":"zhangsan","password":"","age":18}}'
+          description: '{"code":0,"msg":"OK","data":{"token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE1Nzg5OTU0NTMsImlkIjozLCJuYmYiOjE1Nzg5OTU0NTMsInVzZXJuYW1lIjoibGlzaSJ9.agmaafda4LwOqkqDbIkpV9AHkdaoFVHhOMkasu_qCTM"}}'
           schema:
-            $ref: '#/definitions/handler.Response'
-      summary: Get user info of the database
+            type: string
+      summary: 用户登录
+      tags:
+      - Login
+  /user:
+    post:
+      description: 成功后，返回新增用户名称
+      parameters:
+      - description: Username
+        in: body
+        name: username
+        required: true
+        schema:
+          type: string
+      - description: Password
+        in: body
+        name: password
+        required: true
+        schema:
+          type: string
+      - description: Password
+        in: body
+        name: age
+        required: true
+        schema:
+          type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"code":0,"msg":"OK","data":{"username":"zhangsan"}}'
+          schema:
+            type: string
+      summary: 新增一个用户
+      tags:
+      - user
+  /user/{username}:
+    get:
+      description: 从数据库中获取用户信息
+      parameters:
+      - description: Username
+        in: path
+        name: username
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"code":0,"msg":"OK","data":{"username":"zhangsan","age":18}}'
+          schema:
+            type: string
+      summary: 获取用户信息
       tags:
       - user
 swagger: "2.0"

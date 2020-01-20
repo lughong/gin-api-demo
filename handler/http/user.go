@@ -11,28 +11,26 @@ import (
 	"github.com/lughong/gin-api-demo/model"
 )
 
+// UserHandler
 type UserHandler struct {
 	UserLogic model.UserLogic
 }
 
-func NewUserHandler(g *gin.Engine, userLogic model.UserLogic) {
-	h := &UserHandler{
+// NewUserHandler
+func NewUserHandler(userLogic model.UserLogic) *UserHandler {
+	return &UserHandler{
 		UserLogic: userLogic,
 	}
-
-	g.GET("/user/:username", h.GetByUsername)
-	g.POST("/user", h.Create)
-	g.POST("/login", h.Login)
 }
 
-// GetByUsername 获取用户详情
-// @Summary Get user info of the database
-// @Description Get user info
+// @Summary 获取用户信息
+// @Description 从数据库中获取用户信息
 // @Tags user
 // @Access json
 // @Produce json
-// @Success 200 {object} handler.Response "{"code":0,"msg":"OK","data":{"username":"zhangsan","age":18}}"
-// @Router /user/:username [get]
+// @param username path string true "Username"
+// @Success 200 {string} string "{"code":0,"msg":"OK","data":{"username":"zhangsan","age":18}}"
+// @Router /user/{username} [get]
 func (u *UserHandler) GetByUsername(c *gin.Context) {
 	// 获取用户详情
 	ctx := c.Request.Context()
@@ -59,15 +57,15 @@ func (u *UserHandler) GetByUsername(c *gin.Context) {
 	handler.SendResponse(c, nil, data)
 }
 
-// Create 创建用户
-// @Summary Create user to save the database
-// @Description Create user info
+// @Summary 新增一个用户
+// @Description 成功后，返回新增用户名称
 // @Tags user
 // @Access json
 // @Produce json
-// @Param username body handler.CreateRequest true "Get user info for the username"
-// @Param password body handler.CreateRequest true "Get user info for the password"
-// @Success 200 {object} handler.Response "{"code":0,"msg":"OK","data":{"username":"zhangsan"}}"
+// @Param username body string true "Username"
+// @Param password body string true "Password"
+// @Param age body int true "Password"
+// @Success 200 {string} string "{"code":0,"msg":"OK","data":{"username":"zhangsan"}}"
 // @Router /user [post]
 func (u *UserHandler) Create(c *gin.Context) {
 	var r handler.CreateRequest
@@ -122,15 +120,14 @@ func (u *UserHandler) Create(c *gin.Context) {
 	handler.SendResponse(c, nil, data)
 }
 
-// Login 用户登录验证
-// @Summary user Login of the database
-// @Description user Login
-// @Tags user
+// @Summary 用户登录
+// @Description 登录成功返回一个token，后面访问操作都需要带上这个token值作校验
+// @Tags Login
 // @Access json
 // @Produce json
-// @Param username body handler.CreateRequest true "Get user info for the username"
-// @Param password body handler.CreateRequest true "Get user info for the password"
-// @Success 200 {object} handler.Response "{"code":0,"msg":"OK","data":{"token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE1Nzg5OTU0NTMsImlkIjozLCJuYmYiOjE1Nzg5OTU0NTMsInVzZXJuYW1lIjoibGlzaSJ9.agmaafda4LwOqkqDbIkpV9AHkdaoFVHhOMkasu_qCTM"}}"
+// @Param username body string true "Username"
+// @Param password body string true "Password"
+// @Success 200 {string} string "{"code":0,"msg":"OK","data":{"token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE1Nzg5OTU0NTMsImlkIjozLCJuYmYiOjE1Nzg5OTU0NTMsInVzZXJuYW1lIjoibGlzaSJ9.agmaafda4LwOqkqDbIkpV9AHkdaoFVHhOMkasu_qCTM"}}"
 // @Router /login [post]
 func (u *UserHandler) Login(c *gin.Context) {
 	var r handler.CreateRequest

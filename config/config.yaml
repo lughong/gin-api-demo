@@ -9,7 +9,7 @@ server:
   appName: gin-api-demo
   env: dev
   runMode: debug
-  port: :8090
+  addr: :8090
   jwtSecret: sdjf934785974FJMSMBN043534utjldsdfLKJ}P|Q@#!glkdjg
 
 context:
@@ -24,7 +24,7 @@ database:
   addr: 127.0.0.1:3306
   user: apiuser
   password: 123456
-  dbname: gin_api_demo
+  dbName: gin_api_demo
   tablePrefix: tb_
   debug: true
   maxOpenConns: 1000
@@ -32,10 +32,10 @@ database:
 
 # redis缓存配置
 redis:
-  host: 127.0.0.1
-  port: :6379
-  db: 1
   protocol: tcp
+  addr: 127.0.0.1:6379
+  dbName: 1
+  password:
   maxIdle: 3
   maxActive: 3
   idleTimeout: 60s
